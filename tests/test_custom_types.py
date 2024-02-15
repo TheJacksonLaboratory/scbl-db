@@ -1,6 +1,9 @@
-from scbl_db.custom_types import SamplesheetString, StrippedString
-from string import whitespace, punctuation
 from re import sub
+from string import punctuation, whitespace
+
+from scbl_db.custom_types import SamplesheetString, StrippedString
+
+
 class TestStrippedString:
     """
     Tests for the `StrippedString` type.

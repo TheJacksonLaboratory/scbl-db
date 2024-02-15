@@ -6,8 +6,7 @@ from email_validator import validate_email
 from requests import get
 from sqlalchemy import ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-from ..validators import validate_directory
-from ..utils import get_format_string_vars
+
 from ..base import Base
 from ..custom_types import (
     SamplesheetString,
@@ -16,6 +15,8 @@ from ..custom_types import (
     stripped_str,
     unique_stripped_str,
 )
+from ..utils import get_format_string_vars
+from ..validators import validate_directory
 
 
 class Institution(Base, kw_only=True):
@@ -164,9 +165,11 @@ class Person(Base, kw_only=True):
             variables = get_format_string_vars(self.institution.email_format)
             var_values = {var: getattr(self, var) for var in variables}
 
-            email = self.institution.email_format.format_map(var_values).replace(' ', '')
+            email = self.institution.email_format.format_map(var_values).replace(
+                ' ', ''
+            )
             self.email_auto_generated = True
-        
+
         email_info = validate_email(email.lower(), check_deliverability=True)
         return email_info.normalized
 

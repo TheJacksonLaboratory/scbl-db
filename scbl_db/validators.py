@@ -1,8 +1,11 @@
 from collections.abc import Iterable, Mapping
 from pathlib import Path
+
 type DirectoryStructure = Mapping[
     str | Path, Iterable[str | Path] | 'DirectoryStructure'
 ] | Iterable[str | Path]
+
+
 def validate_directory(
     directory: str | Path, required_structure: DirectoryStructure
 ) -> None:

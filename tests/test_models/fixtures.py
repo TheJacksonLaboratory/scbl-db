@@ -1,6 +1,10 @@
 from pathlib import Path
+
 from pytest import MonkeyPatch, fixture
+
 from scbl_db.models.entities import Institution, Lab, Person
+
+
 @fixture(scope='class')
 def institution() -> Institution:
     """
@@ -14,6 +18,8 @@ def institution() -> Institution:
         city='Farmington',
         state='CT',
     )
+
+
 @fixture(scope='class')
 def person(institution: Institution) -> Person:
     """
@@ -26,6 +32,8 @@ def person(institution: Institution) -> Person:
         orcid='0009-0008-3754-6150',
         institution=institution,
     )
+
+
 @fixture(scope='session')
 def delivery_parent_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
     """
@@ -41,6 +49,8 @@ def delivery_parent_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
     monkeypatch.setattr('pathlib.Path.group', lambda s: 'test_group')
 
     return delivery_parent_dir
+
+
 @fixture(scope='class')
 def lab(delivery_parent_dir: Path, institution: Institution, person: Person) -> Lab:
     """Create a valid Lab object for testing"""

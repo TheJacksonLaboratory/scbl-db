@@ -7,6 +7,7 @@ from scbl_db.models.entities import Institution, Lab, Person
 from .fixtures import delivery_parent_dir, institution, person
 
 
+# TODO: add more tests for each possible error
 class TestInstitution:
     """
     Tests for the `Institution` model.
@@ -47,9 +48,9 @@ class TestInstitution:
         assert institution.name == name
         assert institution.short_name == short_name
 
-    def test_invalid_ror_id(self):
+    def test_nonexistent_ror_id(self):
         """
-        Test that given an incorrect ROR ID, the `Institution` model
+        Test that given a nonexistent ROR ID, the `Institution` model
         throws an error.
         """
         with raises(ValueError):
@@ -147,23 +148,47 @@ class TestLab:
     Tests for the `Lab` model.
     """
 
-    def test_auto_set_name(
+    def test_autoset_name(
         self, delivery_parent_dir: Path, institution: Institution, person: Person
     ):
         """
         Test that the `Lab` model correctly sets the `name` attribute when
         given the minimum required information.
         """
+        (delivery_parent_dir / 'ahmed_said').mkdir()
         lab = Lab(institution=institution, pi=person)
+
         assert lab.name == 'Ahmed Said Lab'
 
-    def test_auto_set_delivery_dir(
+    def test_autoset_delivery_dir(
         self, delivery_parent_dir: Path, institution: Institution, person: Person
     ):
         """
         Test that the `Lab` model correctly sets the `delivery_dir` and
         unix group automatically
         """
+        (delivery_parent_dir / 'ahmed_said').mkdir()
         lab = Lab(institution=institution, pi=person)
+
         assert lab.delivery_dir == str(delivery_parent_dir / f'ahmed_said')
         assert lab.unix_group == 'test_group'
+
+    def test_invalid_delivery_dir(
+        self, delivery_parent_dir: Path, institution: Institution, person: Person
+    ):
+        """
+        Test that the `Lab` model raises an error when given an invalid
+        delivery directory.
+        """
+        with raises(NotADirectoryError):
+            Lab(institution=institution, pi=person, delivery_dir='invalid-directory')
+
+    def test_nonexistent_autoset_delivery_dir(
+        self, delivery_parent_dir: Path, institution: Institution, person: Person
+    ):
+        """
+        Test that the `Lab` model raises an error when the delivery
+        directory is automatically set and does not exist.
+        """
+        with raises(NotADirectoryError):
+            Lab(institution=institution, pi=person)

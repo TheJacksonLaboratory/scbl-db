@@ -33,7 +33,8 @@ class SamplesheetString(TypeDecorator):
         if string is None:
             return None
 
-        sep_chars = r'[\s_-]'
+        sep_chars = r'\s_-'
+        sep_chars_group = r'[\s_-]'
         samplesheet_blacklist_pattern = rf'[^{ascii_letters + digits + sep_chars}]'
 
         # Remove illegal characters
@@ -42,7 +43,7 @@ class SamplesheetString(TypeDecorator):
         )
 
         # Replace separator characters with hyphens
-        string = sub(pattern=sep_chars, repl='-', string=string)
+        string = sub(pattern=sep_chars_group, repl='-', string=string)
 
         # Replace occurrences of multiple hyphens with a single hyphen
         string = sub(pattern=r'-+', repl='-', string=string)
@@ -60,7 +61,7 @@ class XeniumSlideSerialNumber(TypeDecorator):
         return int(serial_number.strip())
 
     def process_result_value(self, serial_number: int, dialect) -> str:
-        return f'{serial_number:02}'
+        return f'{serial_number:07}'
 
 
 # Commonly used primary key types

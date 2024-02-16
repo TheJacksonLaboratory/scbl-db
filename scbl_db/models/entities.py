@@ -1,3 +1,4 @@
+from grp import getgrnam
 from os import environ
 from pathlib import Path
 from re import match
@@ -22,8 +23,12 @@ from ..validators import validate_directory
 class Institution(Base, kw_only=True):
     __tablename__ = 'institution'
 
+    # Institution attributes
     id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
     email_format: Mapped[stripped_str] = mapped_column(repr=False, compare=False)
+    ror_id: Mapped[unique_stripped_str | None] = mapped_column(
+        default=None, repr=False, compare=False
+    )
     name: Mapped[unique_stripped_str] = mapped_column(default=None, index=True)
     short_name: Mapped[stripped_str] = mapped_column(
         default=None, index=True, compare=False
@@ -31,18 +36,15 @@ class Institution(Base, kw_only=True):
     country: Mapped[str] = mapped_column(StrippedString(length=2), default='US')
     state: Mapped[str | None] = mapped_column(StrippedString(length=2), default=None)
     city: Mapped[stripped_str] = mapped_column(default=None)
-    ror_id: Mapped[unique_stripped_str | None] = mapped_column(
-        default=None, repr=False, compare=False
-    )
 
     @validates('email_format')
-    def check_email_format(self, key: str, email_format: str) -> str:
+    def validate_email_format(self, key: str, email_format: str) -> str:
         email_format = email_format.strip().lower()
 
         variables = get_format_string_vars(email_format)
 
         if not variables:
-            raise ValueError(f'No variables found in email format {email_format}')
+            raise ValueError(f'No variables found in {key} {email_format}')
 
         person_columns = set(inspect(Person).columns.keys())
         non_existent_person_columns = variables - person_columns
@@ -60,8 +62,9 @@ class Institution(Base, kw_only=True):
         return email_format
 
     @validates('ror_id')
-    def check_ror_id(self, key: str, ror_id: str | None) -> str | None:
+    def validate_ror_id(self, key: str, ror_id: str | None) -> str | None:
         if ror_id is None:
+            self._ror_data = None
             return ror_id
 
         ror_id = ror_id.strip()
@@ -74,13 +77,37 @@ class Institution(Base, kw_only=True):
                 f'ROR ID {ror_id} not found in database search of {base_url}'
             )
 
-        data = response.json()
+        self._ror_data = response.json()
+
+        return ror_id
+
+    def __post_init__(self):
+        if self._ror_data is None:
+            if not all((self.name, self.short_name, self.country, self.city)):
+                raise ValueError(
+                    'If ROR ID is not provided, then name, short_name, country, and city must be provided.'
+                )
+            return
 
         if self.name is None:
-            self.name = data['name']
+            self.name = self._ror_data['name']
 
-        acronyms = data['acronyms']
-        aliases = data['aliases']
+        acronyms = self._ror_data['acronyms']
+        aliases = self._ror_data['aliases']
+        if self.short_name is None:
+            if len(acronyms) > 0:
+                self.short_name = acronyms[0]
+            elif len(aliases) > 0:
+                self.short_name = aliases[0]
+            else:
+                raise ValueError(
+                    'Could not find short name from ROR data. Please provide manually.'
+                )
+
+        self.country = self._ror_data['country']['country_code']
+
+        acronyms = self._ror_data['acronyms']
+        aliases = self._ror_data['aliases']
         if self.short_name is None:
             if len(acronyms) > 0:
                 self.short_name = acronyms[0]
@@ -89,9 +116,9 @@ class Institution(Base, kw_only=True):
             else:
                 pass
 
-        self.country = data['country']['country_code']
+        self.country = self._ror_data['country']['country_code']
 
-        addresses = data['addresses']
+        addresses = self._ror_data['addresses']
         if len(addresses) > 0:
             geonames_city_info = addresses[0]['geonames_city']
             self.city = geonames_city_info['city']
@@ -103,29 +130,30 @@ class Institution(Base, kw_only=True):
                 f'Could not find city information from ROR for {self.name}. Please enter manually.'
             )
 
-        return ror_id
-
 
 class Person(Base, kw_only=True):
     __tablename__ = 'person'
 
+    # Person attributes
     id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
     first_name: Mapped[stripped_str]
     last_name: Mapped[stripped_str]
-    # name: Mapped[stripped_str] = mapped_column(init=False, default=None, index=True)
-
-    institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'), repr=False, init=False, compare=False
+    orcid: Mapped[unique_stripped_str | None] = mapped_column(
+        default=None, repr=False, compare=False
     )
-    institution: Mapped[Institution] = relationship(repr=False, compare=False)
-
     email_auto_generated: Mapped[bool] = mapped_column(
         init=False, default=False, repr=False, compare=False
     )
     email: Mapped[unique_stripped_str] = mapped_column(default=None, index=True)
-    orcid: Mapped[unique_stripped_str | None] = mapped_column(
-        default=None, repr=False, compare=False
+    # name: Mapped[stripped_str] = mapped_column(init=False, default=None, index=True)
+
+    # Parent foreign keys
+    institution_id: Mapped[int] = mapped_column(
+        ForeignKey('institution.id'), repr=False, init=False, compare=False
     )
+
+    # Parent models
+    institution: Mapped[Institution] = relationship(repr=False, compare=False)
 
     @validates('first_name', 'last_name')
     def format_name(self, key: str, name: str) -> str:
@@ -134,7 +162,7 @@ class Person(Base, kw_only=True):
         return noramlized_inner_whitespace
 
     @validates('orcid')
-    def check_orcid(self, key: str, orcid: str | None) -> str | None:
+    def validate_orcid(self, key: str, orcid: str | None) -> str | None:
         if orcid is None:
             return orcid
 
@@ -160,25 +188,38 @@ class Person(Base, kw_only=True):
         return formatted_orcid
 
     @validates('email')
-    def check_email(self, key: str, email: str | None) -> str | None:
+    def validate_email(self, key: str, email: str | None) -> str | None:
         if email is None:
-            variables = get_format_string_vars(self.institution.email_format)
-            var_values = {var: getattr(self, var) for var in variables}
-
-            email = self.institution.email_format.format_map(var_values).replace(
-                ' ', ''
-            )
-            self.email_auto_generated = True
+            return email
 
         email_info = validate_email(email.lower(), check_deliverability=True)
         return email_info.normalized
+
+    def __post_init__(self):
+        if self.email is not None:
+            return
+
+        variables = get_format_string_vars(self.institution.email_format)
+        var_values = {var: getattr(self, var) for var in variables}
+
+        self.email = self.institution.email_format.format_map(var_values).replace(
+            ' ', ''
+        )
+        self.email_auto_generated = True
 
 
 class Lab(Base, kw_only=True):
     __tablename__ = 'lab'
 
+    # Lab attributes
     id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
+    name: Mapped[stripped_str] = mapped_column(default=None, index=True)
+    delivery_dir: Mapped[unique_stripped_str] = mapped_column(default=None, repr=False)
+    unix_group: Mapped[stripped_str] = mapped_column(
+        init=False, default=None, repr=False, compare=False
+    )
 
+    # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(
         ForeignKey('institution.id'), init=False, repr=False, compare=False
     )
@@ -186,37 +227,29 @@ class Lab(Base, kw_only=True):
         ForeignKey('person.id'), init=False, repr=False, compare=False
     )
 
+    # Parent models
     institution: Mapped[Institution] = relationship()
     pi: Mapped[Person] = relationship()
 
-    name: Mapped[stripped_str] = mapped_column(default=None, index=True)
-    delivery_dir: Mapped[unique_stripped_str] = mapped_column(default=None, repr=False)
-    unix_group: Mapped[stripped_str] = mapped_column(
-        init=False, default=None, repr=False, compare=False
-    )
-
     __table_args__ = (UniqueConstraint('institution_id', 'pi_id', 'name'),)
 
-    @validates('name')
-    def set_name(self, key: str, name: str | None) -> str:
-        # This assumes that no two PIs share the same name and
-        # institution. Might have to change in production
-        return (
-            f'{self.pi.first_name} {self.pi.last_name} Lab'
-            if name is None
-            else name.title()
-        )
-
     @validates('delivery_dir')
-    def set_delivery_dir(self, key: str, delivery_dir: str | None) -> str:
-        # Getting delivery parent dir from environment for the sake of
-        # testing. Hopefully can figure out a better way, importing from
-        # defaults instead of this
-        delivery_parent_dir = Path(environ['delivery_parent_dir'])
+    def validate_delivery_dir(self, key: str, delivery_dir: str | None):
+        self._delivery_parent_dir = Path(environ['delivery_parent_dir'])
 
-        # If no delivery directory is provided, get it automatically
-        # from PI name
         if delivery_dir is None:
+            return delivery_dir
+
+        delivery_path = self._delivery_parent_dir / delivery_dir
+        validate_directory(delivery_path, required_structure={delivery_path: []})
+
+        return str(delivery_path)
+
+    def __post_init__(self):
+        if self.name is None:
+            self.name = f'{self.pi.first_name} {self.pi.last_name} Lab'
+
+        if self.delivery_dir is None:
             pi = self.pi
 
             first_name = SamplesheetString().process_bind_param(
@@ -226,14 +259,9 @@ class Lab(Base, kw_only=True):
                 pi.last_name.lower(), dialect=None
             )
 
-            delivery_path = Path(f'{first_name}_{last_name}')
-        else:
-            delivery_path = Path(delivery_dir)
+            delivery_path = self._delivery_parent_dir / f'{first_name}_{last_name}'
+            validate_directory(delivery_path, required_structure={delivery_path: []})
 
-        validate_directory(delivery_parent_dir, required_structure={delivery_path: []})
+            self.delivery_dir = str(delivery_path)
 
-        return str(delivery_parent_dir / delivery_path)
-
-    @validates('unix_group')
-    def set_group(self, key: str, unix_group: None) -> str:  # type: ignore
-        return Path(self.delivery_dir).group()
+        self.unix_group = Path(self.delivery_dir).group()

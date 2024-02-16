@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pytest import MonkeyPatch, fixture
 
+from scbl_db.models.data import Platform
 from scbl_db.models.entities import Institution, Lab, Person
 
 
@@ -34,7 +35,7 @@ def person(institution: Institution) -> Person:
     )
 
 
-@fixture(scope='session')
+@fixture(autouse=True)
 def delivery_parent_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
     """
     Create a temporary delivery parent directory for testing and set
@@ -51,10 +52,24 @@ def delivery_parent_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
     return delivery_parent_dir
 
 
-@fixture(scope='class')
+@fixture
 def lab(delivery_parent_dir: Path, institution: Institution, person: Person) -> Lab:
     """Create a valid Lab object for testing"""
     (
         delivery_parent_dir / f'{person.first_name.lower()}_{person.last_name.lower()}'
     ).mkdir()
     return Lab(institution=institution, pi=person)
+
+
+@fixture(scope='class')
+def platform() -> Platform:
+    """
+    Create a valid Platform object for testing.
+    """
+    return Platform(
+        name='Chromium',
+        data_set_id_length=9,
+        data_set_id_prefix='CD',
+        sample_id_length=9,
+        sample_id_prefix='CS',
+    )

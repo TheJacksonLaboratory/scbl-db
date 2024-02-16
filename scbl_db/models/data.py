@@ -27,7 +27,7 @@ class Platform(Base, kw_only=True):
     sample_id_length: Mapped[int]
 
     @validates('data_set_id_prefix', 'sample_id_prefix')
-    def check_prefix(self, key: str, prefix: str) -> str:
+    def validate_prefix(self, key: str, prefix: str) -> str:
         pattern = r'^[A-Z]{2}$'
         prefix = prefix.upper().strip()
 
@@ -39,7 +39,7 @@ class Platform(Base, kw_only=True):
         return prefix
 
     @validates('data_set_id_length', 'sample_id_length')
-    def check_id_length(self, key: str, id_length: int) -> int:
+    def validate_id_length(self, key: str, id_length: int) -> int:
         min_id_length = 7
         max_id_length = 9
 

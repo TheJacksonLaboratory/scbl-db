@@ -16,10 +16,10 @@ class TestDataSet:
         Test that two `DataSet`s with the same date submitted and the
         same sample submitter have the same batch ID.
         """
-        data_set_ids = [
+        data_set_ids = (
             platform.data_set_id_prefix + f'{i:0{platform.data_set_id_length}}'
             for i in range(2)
-        ]
+        )
         data_sets = [
             DataSet(
                 id=id,

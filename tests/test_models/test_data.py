@@ -13,8 +13,9 @@ class TestDataSet:
 
     def test_same_batch_id(self, lab: Lab, platform: Platform):
         """
-        Test that two `DataSet`s with the same date submitted and the
-        same sample submitter have the same batch ID.
+        Test that two `DataSet`s with the same date submitted and
+        ilab_request_id have the same batch_id, despite everything else
+        being different.
         """
         data_set_ids = (
             platform.data_set_id_prefix + f'{i:0{platform.data_set_id_length}}'
@@ -25,10 +26,10 @@ class TestDataSet:
                 id=id,
                 date_initialized=date.today(),
                 lab=lab,
-                platform=platform,
+                platform_name=platform.name,
                 submitter=lab.pi,
                 ilab_request_id='ilab_request_id',
-                name='data_set',
+                name=f'data_set{id}',
             )
             for id in data_set_ids
         ]

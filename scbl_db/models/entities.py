@@ -1,4 +1,4 @@
-from grp import getgrnam
+from functools import cached_property
 from os import environ
 from pathlib import Path
 from re import match
@@ -61,25 +61,21 @@ class Institution(Base, kw_only=True):
 
         return email_format
 
-    @validates('ror_id')
-    def validate_ror_id(self, key: str, ror_id: str | None) -> str | None:
-        if ror_id is None:
-            self._ror_data = None
-            return ror_id
+    @cached_property
+    def _ror_data(self):
+        if self.ror_id is None:
+            return None
 
-        ror_id = ror_id.strip()
         base_url = 'https://api.ror.org/organizations'
-        url = f'{base_url}/{ror_id}'
+        url = f'{base_url}/{self.ror_id}'
         response = get(url)
 
         if not response.ok:
             raise ValueError(
-                f'ROR ID {ror_id} not found in database search of {base_url}'
+                f'ROR ID {self.ror_id} not found in database search of {base_url}'
             )
 
-        self._ror_data = response.json()
-
-        return ror_id
+        return response.json()
 
     def __post_init__(self):
         if self._ror_data is None:
@@ -233,10 +229,12 @@ class Lab(Base, kw_only=True):
 
     __table_args__ = (UniqueConstraint('institution_id', 'pi_id', 'name'),)
 
+    @cached_property
+    def _delivery_parent_dir(self) -> Path:
+        return Path(environ['delivery_parent_dir'])
+
     @validates('delivery_dir')
     def validate_delivery_dir(self, key: str, delivery_dir: str | None):
-        self._delivery_parent_dir = Path(environ['delivery_parent_dir'])
-
         if delivery_dir is None:
             return delivery_dir
 
@@ -249,19 +247,21 @@ class Lab(Base, kw_only=True):
         if self.name is None:
             self.name = f'{self.pi.first_name} {self.pi.last_name} Lab'
 
-        if self.delivery_dir is None:
-            pi = self.pi
+        if self.delivery_dir is not None:
+            self.unix_group = Path(self.delivery_dir).group()
+            return
 
-            first_name = SamplesheetString().process_bind_param(
-                pi.first_name.lower(), dialect=None
-            )
-            last_name = SamplesheetString().process_bind_param(
-                pi.last_name.lower(), dialect=None
-            )
+        pi = self.pi
 
-            delivery_path = self._delivery_parent_dir / f'{first_name}_{last_name}'
-            validate_directory(delivery_path, required_structure={delivery_path: []})
+        first_name = SamplesheetString().process_bind_param(
+            pi.first_name.lower(), dialect=None
+        )
+        last_name = SamplesheetString().process_bind_param(
+            pi.last_name.lower(), dialect=None
+        )
 
-            self.delivery_dir = str(delivery_path)
+        delivery_path = self._delivery_parent_dir / f'{first_name}_{last_name}'
+        validate_directory(delivery_path, required_structure={delivery_path: []})
 
-        self.unix_group = Path(self.delivery_dir).group()
+        self.delivery_dir = str(delivery_path)
+        self.unix_group = delivery_path.group()

@@ -1,8 +1,10 @@
 from dataclasses import field
 from datetime import date
-from re import match
+from re import fullmatch
+from typing import ClassVar
 
 from sqlalchemy import ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from ..base import Base
@@ -21,42 +23,42 @@ class Platform(Base, kw_only=True):
 
     # Platform attributes
     name: Mapped[stripped_str_pk]
-    data_set_id_prefix: Mapped[str] = mapped_column(SamplesheetString(length=2))
-    sample_id_prefix: Mapped[str] = mapped_column(SamplesheetString(length=2))
-    data_set_id_length: Mapped[int]
-    sample_id_length: Mapped[int]
+    # data_set_id_prefix: Mapped[str] = mapped_column(SamplesheetString(length=2))
+    # sample_id_prefix: Mapped[str] = mapped_column(SamplesheetString(length=2))
+    # data_set_id_length: Mapped[int]
+    # sample_id_length: Mapped[int]
 
-    @validates('data_set_id_prefix', 'sample_id_prefix')
-    def validate_prefix(self, key: str, prefix: str) -> str:
-        pattern = r'^[A-Z]{2}$'
-        prefix = prefix.upper().strip()
+    # @validates('data_set_id_prefix', 'sample_id_prefix')
+    # def validate_prefix(self, key: str, prefix: str) -> str:
+    #     pattern = r'^[A-Z]{2}$'
+    #     prefix = prefix.upper().strip()
 
-        if match(pattern, prefix) is None:
-            raise ValueError(
-                f'[green]{key}[/] [orange1]{prefix}[/] does not match the pattern [green]{pattern}[/].'
-            )
+    #     if fullmatch(pattern, prefix) is None:
+    #         raise ValueError(
+    #             f'{key} {prefix} does not match the pattern {pattern}.'
+    #         )
 
-        return prefix
+    #     return prefix
 
-    @validates('data_set_id_length', 'sample_id_length')
-    def validate_id_length(self, key: str, id_length: int) -> int:
-        min_id_length = 7
-        max_id_length = 9
+    # @validates('data_set_id_length', 'sample_id_length')
+    # def validate_id_length(self, key: str, id_length: int) -> int:
+    #     min_id_length = 7
+    #     max_id_length = 9
 
-        if not min_id_length <= id_length <= max_id_length:
-            raise ValueError(
-                f'[green]{key}[/] must be between {min_id_length} and {max_id_length}, but {id_length} was given.'
-            )
+    #     if not min_id_length <= id_length <= max_id_length:
+    #         raise ValueError(
+    #             f'{key} must be between {min_id_length} and {max_id_length}, but {id_length} was given.'
+    #         )
 
-        return id_length
+    #     return id_length
 
-    @property
-    def prefixes(self) -> dict[str, str]:
-        return {'DataSet': self.data_set_id_prefix, 'Sample': self.sample_id_prefix}
+    # @property
+    # def prefixes(self) -> dict[str, str]:
+    #     return {'DataSet': self.data_set_id_prefix, 'Sample': self.sample_id_prefix}
 
-    @property
-    def id_lengths(self) -> dict[str, int]:
-        return {'DataSet': self.data_set_id_length, 'Sample': self.sample_id_length}
+    # @property
+    # def id_lengths(self) -> dict[str, int]:
+    #     return {'DataSet': self.data_set_id_length, 'Sample': self.sample_id_length}
 
 
 class DataSet(Base, kw_only=True):
@@ -73,54 +75,50 @@ class DataSet(Base, kw_only=True):
 
     # Parent foreign keys
     lab_id: Mapped[int] = mapped_column(ForeignKey('lab.id'), init=False, repr=False)
-    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
+    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'))
     submitter_id: Mapped[int] = mapped_column(
         ForeignKey('person.id'), init=False, repr=False
     )
 
     # Parent models
     lab: Mapped[Lab] = relationship()
-    platform: Mapped[Platform] = relationship()
+    platform: Mapped[Platform] = relationship(init=False, repr=False)
     submitter: Mapped[Person] = relationship()
 
     # Automatically set attributes
     batch_id: Mapped[int] = mapped_column(init=False, default=None, repr=False)
 
     # Model metadata
-    id_based_on: str = field(default='date_received', init=False, repr=False)
+    id_based_on: ClassVar[str] = 'date_initialized'
+    id_prefix: ClassVar[str | None] = None
+    id_length: ClassVar[int | None] = None
 
     __mapper_args__ = {
         'polymorphic_on': 'platform_name',
     }
 
-    # TODO: implement validation
     @validates('id')
-    def check_id(self, key: str, id: str) -> str:
-        return id.upper().strip()
+    def validate_id(self, key: str, id: str) -> str | None:
+        if self.id_prefix is None or self.id_length is None:
+            return
 
-    @validates('batch_id')
-    def set_batch_id(self, key: str, batch_id: None) -> int:
-        # If it's decided that more things constitute a batch, this will
-        # be easy to update.
+        id = id.strip().upper()
+        pattern = rf'{self.id_prefix}\d{self.id_length - 2}'
 
-        # Note that submitter email, institution, name, and ORCID have
-        # been picked instead of the person ID because a person is not
-        # assigned an ID until they enter the database.
+        if fullmatch(pattern, id) is None:
+            raise ValueError(f'{key} {id} does not match the pattern {pattern}.')
 
-        # There is a small likelihood that two people with the same name
-        # and institution both have an autogenerated email and no ORCID.
-        # If these two people submit on the same day, the batch_id of
-        # the two datasets will be the same.
-        # TODO: this should be fixed somehow
+        return id
+
+    def __post_init__(self):
         to_hash = (
             self.date_initialized,
+            self.ilab_request_id,
+            self.lab.pi.email,
             self.submitter.email,
-            self.submitter.institution_id,
-            self.submitter.first_name,
-            self.submitter.last_name,
-            self.submitter.orcid,
+            self.platform_name,
         )
-        return hash(to_hash)
+        self.batch_id = hash(to_hash)
 
 
 class Sample(Base, kw_only=True):
@@ -138,11 +136,21 @@ class Sample(Base, kw_only=True):
     platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
 
     # Model metadata
-    id_based_on: str = field(default='date_received', init=False, repr=False)
+    id_based_on: ClassVar[str] = 'date_received'
+    id_prefix: ClassVar[str | None] = None
+    id_length: ClassVar[int | None] = None
 
     __mapper_args__ = {'polymorphic_on': 'platform_name'}
 
-    # TODO: implement validation
     @validates('id')
-    def check_id(self, key: str, id: str) -> str:
-        return id.upper().strip()
+    def validate_id(self, key: str, id: str) -> str | None:
+        if self.id_prefix is None or self.id_length is None:
+            return
+
+        id = id.strip().upper()
+        pattern = rf'{self.id_prefix}\d{self.id_length - 2}'
+
+        if fullmatch(pattern, id) is None:
+            raise ValueError(f'{key} {id} does not match the pattern {pattern}.')
+
+        return id

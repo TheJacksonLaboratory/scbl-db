@@ -12,7 +12,6 @@ from ..bases import Entity
 from ..custom_types import (
     SamplesheetString,
     StrippedString,
-    int_pk,
     stripped_str,
     unique_stripped_str,
 )

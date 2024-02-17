@@ -66,10 +66,4 @@ def platform() -> Platform:
     """
     Create a valid Platform object for testing.
     """
-    return Platform(
-        name='Chromium',
-        data_set_id_length=9,
-        data_set_id_prefix='CD',
-        sample_id_length=9,
-        sample_id_prefix='CS',
-    )
+    return Platform(name='Chromium')

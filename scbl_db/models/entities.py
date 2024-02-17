@@ -8,7 +8,7 @@ from requests import get
 from sqlalchemy import ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from ..base import Base
+from ..bases import Entity
 from ..custom_types import (
     SamplesheetString,
     StrippedString,
@@ -20,11 +20,10 @@ from ..utils import get_format_string_vars
 from ..validators import validate_directory
 
 
-class Institution(Base, kw_only=True):
+class Institution(Entity, kw_only=True):
     __tablename__ = 'institution'
 
     # Institution attributes
-    id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
     email_format: Mapped[stripped_str] = mapped_column(repr=False, compare=False)
     ror_id: Mapped[unique_stripped_str | None] = mapped_column(
         default=None, repr=False, compare=False
@@ -127,11 +126,10 @@ class Institution(Base, kw_only=True):
             )
 
 
-class Person(Base, kw_only=True):
+class Person(Entity, kw_only=True):
     __tablename__ = 'person'
 
     # Person attributes
-    id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
     first_name: Mapped[stripped_str]
     last_name: Mapped[stripped_str]
     orcid: Mapped[unique_stripped_str | None] = mapped_column(
@@ -204,11 +202,10 @@ class Person(Base, kw_only=True):
         self.email_auto_generated = True
 
 
-class Lab(Base, kw_only=True):
+class Lab(Entity, kw_only=True):
     __tablename__ = 'lab'
 
     # Lab attributes
-    id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
     name: Mapped[stripped_str] = mapped_column(default=None, index=True)
     delivery_dir: Mapped[unique_stripped_str] = mapped_column(default=None, repr=False)
     unix_group: Mapped[stripped_str] = mapped_column(

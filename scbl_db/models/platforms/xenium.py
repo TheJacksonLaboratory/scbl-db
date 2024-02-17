@@ -1,33 +1,32 @@
-from re import fullmatch
+from datetime import date
+from typing import ClassVar, Literal
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from ...base import Base
-from ...custom_types import (
-    samplesheet_str,
-    samplesheet_str_pk,
-    xenium_slide_serial_number,
-)
-from ...validators import validate_id
+from ...bases import Data
+from ...custom_types import samplesheet_str, xenium_slide_serial_number
 from ..data import DataSet, Sample
 
 
-class XeniumRun(Base):
+class XeniumRun(Data):
     __tablename__ = 'xenium_run'
 
     # XeniumRun attributes
-    id: Mapped[samplesheet_str_pk]
+    date_run_began: Mapped[date] = mapped_column(repr=False)
+
+    # Model metadata
+    id_date_col: ClassVar[Literal['date_run_began']] = 'date_run_began'
+    id_prefix: ClassVar[Literal['XR']] = 'XR'
+    id_length: ClassVar[Literal[7]] = 7
 
     # Child models
     data_sets: Mapped[list['XeniumDataSet']] = relationship(
         back_populates='xenium_run', default_factory=list, repr=False, compare=False
     )
 
-    # TODO: implement validation
 
-
-class XeniumDataSet(DataSet):
+class XeniumDataSet(DataSet, kw_only=True):
     # XeniumDataSet attributes
     slide_serial_number: Mapped[xenium_slide_serial_number | None]
     slide_name: Mapped[samplesheet_str | None]
@@ -46,7 +45,8 @@ class XeniumDataSet(DataSet):
     )
 
     # Model metadata
-    id_prefix = 'XE'
+    id_prefix: ClassVar[Literal['XD']] = 'XD'
+    id_length: ClassVar[Literal[9]] = 9
 
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}
 
@@ -60,4 +60,9 @@ class XeniumDataSet(DataSet):
 class XeniumSample(Sample):
     # Parent models
     data_set: Mapped[XeniumDataSet] = relationship(back_populates='samples')
+
+    # Model metadata
+    id_prefix: ClassVar[Literal['XE']] = 'XE'
+    id_length: ClassVar[Literal[9]] = 9
+
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}

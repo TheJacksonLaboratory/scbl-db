@@ -1,4 +1,3 @@
-from ast import For
 from datetime import date
 from typing import ClassVar, Literal
 
@@ -13,6 +12,8 @@ from ..custom_types import (
     stripped_str_pk,
 )
 from .entities import Lab, Person
+
+PLATFORM_NAME = 'Xenium'
 
 
 class Platform(Base, kw_only=True):
@@ -34,7 +35,9 @@ class DataSet(Data, kw_only=True):
 
     # Parent foreign keys
     lab_id: Mapped[int] = mapped_column(ForeignKey('lab.id'), init=False, repr=False)
-    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'))
+    platform_name: Mapped[str] = mapped_column(
+        ForeignKey('platform.name'), default=PLATFORM_NAME, init=False
+    )
     submitter_id: Mapped[int] = mapped_column(
         ForeignKey('person.id'), init=False, repr=False
     )
@@ -78,7 +81,9 @@ class Sample(Data, kw_only=True):
     data_set_id: Mapped[int] = mapped_column(
         ForeignKey('data_set.id'), init=False, repr=False
     )
-    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'))
+    platform_name: Mapped[str] = mapped_column(
+        ForeignKey('platform.name'), default=PLATFORM_NAME, init=False
+    )
 
     # Model metadata
     id_date_col: ClassVar[Literal['date_received']] = 'date_received'

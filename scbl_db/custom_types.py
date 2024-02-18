@@ -15,8 +15,8 @@ class StrippedString(TypeDecorator):
     impl = String
     cache_ok = True
 
-    def process_bind_param(self, string: str | None, dialect) -> str | None:
-        return None if string is None else string.strip()
+    def process_bind_param(self, string, dialect) -> str | None:
+        return string.strip() if isinstance(string, str) else string
 
 
 class SamplesheetString(TypeDecorator):
@@ -30,8 +30,8 @@ class SamplesheetString(TypeDecorator):
     cache_ok = True
 
     def process_bind_param(self, string: str | None, dialect) -> str | None:
-        if string is None:
-            return None
+        if not isinstance(string, str):
+            return string
 
         sep_chars = r'\s_-'
         sep_chars_group = r'[\s_-]'
@@ -57,11 +57,17 @@ class XeniumSlideSerialNumber(TypeDecorator):
     impl = Integer
     cache_ok = True
 
-    def process_bind_param(self, serial_number: str, dialect) -> int:
-        return int(serial_number.strip())
+    def process_bind_param(self, serial_number, dialect) -> int:
+        return (
+            int(serial_number.strip())
+            if isinstance(serial_number, str)
+            else serial_number
+        )
 
-    def process_result_value(self, serial_number: int, dialect) -> str:
-        return f'{serial_number:07}'
+    def process_result_value(self, serial_number, dialect) -> str:
+        return (
+            f'{serial_number:07}' if isinstance(serial_number, int) else serial_number
+        )
 
 
 # Commonly used primary key types

@@ -57,17 +57,18 @@ class TestXeniumSlideSerialNumber:
     Tests for the `XeniumSlideSerialNumber` type.
     """
 
+    serial_number_as_int = 99999
+
     def test_process_bind_param(self):
         """
         Test that the `process_bind_param` method strips whitespace from
         the ends of the string and casts the string to an integer.
         """
-        serial_number_as_int = 99999
-        serial_number = f'{whitespace}00{serial_number_as_int}{whitespace}'
+        serial_number = f'{whitespace}00{self.serial_number_as_int}{whitespace}'
 
         assert (
             XeniumSlideSerialNumber().process_bind_param(serial_number, dialect=None)
-            == serial_number_as_int
+            == self.serial_number_as_int
         )
 
     def test_process_invalid_bind_param(self):
@@ -85,11 +86,9 @@ class TestXeniumSlideSerialNumber:
         Test that the `process_result_value` method casts the integer to a
         string and pads it with a leading zero if it is a single digit.
         """
-        serial_number_as_int = 99999
-
         assert (
             XeniumSlideSerialNumber().process_result_value(
-                serial_number_as_int, dialect=None
+                self.serial_number_as_int, dialect=None
             )
-            == f'00{serial_number_as_int}'
+            == f'00{self.serial_number_as_int}'
         )

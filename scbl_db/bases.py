@@ -1,4 +1,3 @@
-from collections.abc import Hashable
 from datetime import date
 from re import fullmatch
 from typing import ClassVar
@@ -18,15 +17,6 @@ class Entity(Base, kw_only=True):
 
     id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
 
-    def __hash__(self):
-        return hash(
-            tuple(
-                attr.value
-                for attr in inspect(self).attrs
-                if attr.key != 'id' and isinstance(attr.value, Hashable)
-            )
-        )
-
 
 class Data(Base, kw_only=True):
     __abstract__ = True
@@ -38,15 +28,6 @@ class Data(Base, kw_only=True):
     id_date_col: ClassVar[str]
     id_prefix: ClassVar[str]
     id_length: ClassVar[int]
-
-    def __hash__(self):
-        return hash(
-            tuple(
-                attr.value
-                for attr in inspect(self).attrs
-                if isinstance(attr.value, Hashable)
-            )
-        )
 
     def __post_init__(self):
         self.id = self.id.strip().upper()

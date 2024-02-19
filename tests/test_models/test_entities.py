@@ -4,7 +4,7 @@ from pytest import mark, raises
 
 from scbl_db.models.entities import Institution, Lab, Person
 
-from .fixtures import delivery_parent_dir, institution, person
+from .model_instance_fixtures import delivery_parent_dir, institution, person
 
 
 # TODO: add more tests for each possible error

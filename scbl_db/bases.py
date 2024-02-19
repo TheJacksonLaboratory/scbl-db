@@ -2,10 +2,11 @@ from datetime import date
 from re import fullmatch
 from typing import ClassVar
 
-from sqlalchemy import inspect
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column
 
-from .custom_types import int_pk, samplesheet_str_pk
+from .custom_types import int_pk, samplesheet_str_pk, stripped_str_pk
+
+__all__ = ['Base', 'Entity', 'Data', 'SomethingToChange']
 
 
 class Base(MappedAsDataclass, DeclarativeBase):
@@ -45,3 +46,9 @@ class Data(Base, kw_only=True):
             raise ValueError(
                 f'{model_name} ID {self.id} does not match the pattern {pattern}.'
             )
+
+
+class SomethingToChange(Base, kw_only=True):
+    __abstract__ = True
+
+    name: Mapped[stripped_str_pk]

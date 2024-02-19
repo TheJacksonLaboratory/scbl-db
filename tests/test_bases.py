@@ -7,6 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from scbl_db.bases import Data
 
 
+class TestEntity:
+    pass
+
+
 class TestData:
     """
     Tests for the abstract base class Data.
@@ -46,3 +50,7 @@ class TestData:
         """
         with raises(ValueError):
             self.DataSubclass(id='AB99000', date_info=self.date_info)
+
+
+class TestSomethingToChange:
+    pass

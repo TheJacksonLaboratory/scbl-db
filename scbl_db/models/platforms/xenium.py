@@ -8,15 +8,17 @@ from ...bases import Data
 from ...custom_types import samplesheet_str, xenium_slide_serial_number
 from ..data import DataSet, Sample
 
+__all__ = ['XeniumRun', 'XeniumDataSet', 'XeniumSample']
+
 
 class XeniumRun(Data):
     __tablename__ = 'xenium_run'
 
     # XeniumRun attributes
-    date_run_began: Mapped[date] = mapped_column(repr=False)
+    date_begun: Mapped[date] = mapped_column(repr=False)
 
     # Model metadata
-    id_date_col: ClassVar[Literal['date_run_began']] = 'date_run_began'
+    id_date_col: ClassVar[Literal['date_begun']] = 'date_begun'
     id_prefix: ClassVar[Literal['XR']] = 'XR'
     id_length: ClassVar[Literal[7]] = 7
 
@@ -41,7 +43,7 @@ class XeniumDataSet(DataSet, kw_only=True):
 
     # Child models
     samples: Mapped[list['XeniumSample']] = relationship(
-        back_populates='data_set', default_factory=list, repr=False
+        back_populates='data_set', default_factory=list, repr=False, compare=False
     )
 
     # Model metadata
@@ -51,10 +53,22 @@ class XeniumDataSet(DataSet, kw_only=True):
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}
 
     # TODO: implement this to check against 10x's database?
-    # TODO: validate that it's actually an integer with the proper length
     @validates('slide_serial_number')
     def check_slide_serial_number(self, key: str, serial_number: str) -> str:
-        return serial_number.strip()
+        serial_number = serial_number.strip()
+
+        try:
+            int(serial_number)
+        except ValueError:
+            raise ValueError(f'{key} must be a string of numbers.')
+
+        correct_serial_number_length = 7
+        if len(serial_number) != correct_serial_number_length:
+            raise ValueError(
+                f'{key} must be {correct_serial_number_length} characters long.'
+            )
+
+        return serial_number
 
 
 class XeniumSample(Sample):

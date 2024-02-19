@@ -18,6 +18,8 @@ from ..custom_types import (
 from ..utils import get_format_string_vars
 from ..validators import validate_directory
 
+__all__ = ['Institution', 'Lab', 'Person']
+
 
 class Institution(Entity, kw_only=True):
     __tablename__ = 'institution'
@@ -138,7 +140,6 @@ class Person(Entity, kw_only=True):
         init=False, default=False, repr=False, compare=False
     )
     email: Mapped[unique_stripped_str] = mapped_column(default=None, index=True)
-    # name: Mapped[stripped_str] = mapped_column(init=False, default=None, index=True)
 
     # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(

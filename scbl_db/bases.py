@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_co
 
 from .custom_types import int_pk, samplesheet_str_pk, stripped_str_pk
 
-__all__ = ['Base', 'Entity', 'Data', 'SomethingToChange']
+__all__ = ['Base', 'Entity', 'Data', 'Process']
 
 
 class Base(MappedAsDataclass, DeclarativeBase):
@@ -48,7 +48,7 @@ class Data(Base, kw_only=True):
             )
 
 
-class SomethingToChange(Base, kw_only=True):
+class Process(Base, kw_only=True):
     __abstract__ = True
 
     name: Mapped[stripped_str_pk]

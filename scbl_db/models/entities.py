@@ -1,7 +1,7 @@
 from functools import cached_property
 from os import environ
 from pathlib import Path
-from re import match
+from re import fullmatch
 
 from email_validator import validate_email
 from requests import get
@@ -162,8 +162,8 @@ class Person(Entity, kw_only=True):
 
         orcid = orcid.strip()
 
-        orcid_pattern = r'^(\d{4})-?(\d{4})-?(\d{4})-?(\d{4}|\d{3}X)$'
-        if (match_obj := match(orcid_pattern, string=orcid)) is None:
+        orcid_pattern = r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{4}|\d{3}X)'
+        if (match_obj := fullmatch(orcid_pattern, string=orcid)) is None:
             raise ValueError(f'ORCID {orcid} does not match pattern {orcid_pattern}')
 
         digit_groups = match_obj.groups()

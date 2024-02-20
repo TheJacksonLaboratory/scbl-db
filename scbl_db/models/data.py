@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..bases import Data
 from ..custom_types import samplesheet_str, stripped_str
 from .entities import Lab, Person
-from .something_to_change import Assay, Platform
+from .processes import Assay, Platform
 
 __all__ = ['DataSet', 'Sample']
 

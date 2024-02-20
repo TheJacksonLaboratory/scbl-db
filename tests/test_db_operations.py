@@ -4,11 +4,11 @@ from sqlalchemy.orm import Session, sessionmaker
 import scbl_db.models.entities as entities
 import scbl_db.models.platforms.chromium as chromium_module
 import scbl_db.models.platforms.xenium as xenium_module
-import scbl_db.models.something_to_change as something_to_change
+import scbl_db.models.processes as processes
 from scbl_db.models.entities import *
 from scbl_db.models.platforms.chromium import *
 from scbl_db.models.platforms.xenium import *
-from scbl_db.models.something_to_change import *
+from scbl_db.models.processes import *
 
 from .db_fixtures import tmp_db_session
 from .test_models.model_instance_fixtures import *
@@ -66,7 +66,7 @@ class TestDBInsert:
                 xenium_module,
                 chromium_module,
                 entities,
-                something_to_change,
+                processes,
             ]:
                 for model_name in module.__all__:
                     model = getattr(module, model_name)

@@ -6,7 +6,7 @@ from pytest import MonkeyPatch, fixture
 from scbl_db.models.entities import *
 from scbl_db.models.platforms.chromium import *
 from scbl_db.models.platforms.xenium import *
-from scbl_db.models.something_to_change import *
+from scbl_db.models.processes import *
 
 __all__ = [
     'institution',

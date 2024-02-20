@@ -3,12 +3,11 @@ from re import fullmatch
 from typing import ClassVar, Literal
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...bases import Base, Data, SomethingToChange
+from ...bases import Base, Data, Process
 from ...custom_types import samplesheet_str, samplesheet_str_pk, stripped_str
 from ..data import DataSet, Sample
-from ..something_to_change import Assay
 
 __all__ = [
     'ChromiumDataSet',
@@ -88,7 +87,7 @@ class SequencingRun(Data, kw_only=True):
             )
 
 
-class ChromiumLibraryType(SomethingToChange, kw_only=True):
+class ChromiumLibraryType(Process, kw_only=True):
     __tablename__ = 'chromium_library_type'
 
 

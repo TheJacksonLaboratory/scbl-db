@@ -4,28 +4,25 @@ from re import fullmatch
 from typing import ClassVar
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column
-from sqlalchemy.orm.decl_api import DCTransformDeclarative
 
 from .custom_types import int_pk, samplesheet_str_pk, stripped_str_pk
 
 __all__ = ['Base', 'Entity', 'Data', 'Process']
 
 
-class BaseMetaClass(DCTransformDeclarative):
-    @property
-    def init_fields(cls) -> list[str]:
-        return [f.name for f in fields(cls) if f.init]
+class Base(MappedAsDataclass, DeclarativeBase):
+    @classmethod
+    def init_fields(cls) -> set[str]:
+        return {f.name for f in fields(cls) if f.init}
 
-    @property
-    def required_init_fields(cls) -> list[str]:
-        return [
+    @classmethod
+    def required_init_fields(cls) -> set[str]:
+        return {
             f.name
             for f in fields(cls)
             if f.init and f.default is MISSING and f.default_factory is MISSING
-        ]
+        }
 
-
-class Base(MappedAsDataclass, DeclarativeBase, metaclass=BaseMetaClass):
     pass
 
 

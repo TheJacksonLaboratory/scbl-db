@@ -1,6 +1,5 @@
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from re import fullmatch
 
 type DirectoryStructure = Mapping[
     str | Path, Iterable[str | Path] | 'DirectoryStructure'

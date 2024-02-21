@@ -37,11 +37,3 @@ def validate_directory(
     raise TypeError(
         f'{required_structure} must be a [green]Mapping[/] or an [green]Iterable[/], not a [orange1]{type(required_structure).__name__}[/]'
     )
-
-
-def validate_id(id: str, key: str, pattern: str):
-    id = id.strip().upper()
-    if fullmatch(pattern, id) is None:
-        raise ValueError(f'{key} {id} does not match the pattern {pattern}.')
-
-    return id

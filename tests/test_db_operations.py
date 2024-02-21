@@ -1,14 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-import scbl_db.models.entities as entities
-import scbl_db.models.platforms.chromium as chromium_module
-import scbl_db.models.platforms.xenium as xenium_module
-import scbl_db.models.processes as processes
-from scbl_db.models.entities import *
-from scbl_db.models.platforms.chromium import *
-from scbl_db.models.platforms.xenium import *
-from scbl_db.models.processes import *
+from scbl_db import *
 
 from .db_fixtures import tmp_db_session
 from .test_models.model_instance_fixtures import *
@@ -62,12 +55,5 @@ class TestDBInsert:
             session.add(xenium_sample)
 
         with tmp_db_session.begin() as session:
-            for module in [
-                xenium_module,
-                chromium_module,
-                entities,
-                processes,
-            ]:
-                for model_name in module.__all__:
-                    model = getattr(module, model_name)
-                    assert session.execute(select(model)).scalar() is not None
+            for model in ORDERED_MODELS.values():
+                assert session.execute(select(model)).scalar() is not None

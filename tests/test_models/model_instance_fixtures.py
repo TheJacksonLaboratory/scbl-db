@@ -205,7 +205,7 @@ def xenium_run() -> XeniumRun:
     """
     Create a valid XeniumRun object for testing dependent models.
     """
-    return XeniumRun(id='XR99000', date_begun=date(1999, 1, 1))
+    return XeniumRun(id='XR990000', date_begun=date(1999, 1, 1))
 
 
 @fixture
@@ -216,7 +216,7 @@ def xenium_data_set(
     Create a valid ChromiumDataSet object for testing dependent models.
     """
     return XeniumDataSet(
-        id='XD9900000',
+        id='XD99000000',
         name='xenium_data_set',
         assay=xenium_assay,
         ilab_request_id='ilab_request',

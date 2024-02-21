@@ -20,7 +20,7 @@ class XeniumRun(Data):
     # Model metadata
     id_date_col: ClassVar[Literal['date_begun']] = 'date_begun'
     id_prefix: ClassVar[Literal['XR']] = 'XR'
-    id_length: ClassVar[Literal[7]] = 7
+    id_length: ClassVar[Literal[8]] = 8
 
     # Child models
     data_sets: Mapped[list['XeniumDataSet']] = relationship(
@@ -48,7 +48,7 @@ class XeniumDataSet(DataSet, kw_only=True):
 
     # Model metadata
     id_prefix: ClassVar[Literal['XD']] = 'XD'
-    id_length: ClassVar[Literal[9]] = 9
+    id_length: ClassVar[Literal[10]] = 10
 
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}
 

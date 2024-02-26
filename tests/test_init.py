@@ -13,7 +13,7 @@ class TestInit:
     )
     all_model_names = {
         mapper.class_.__name__ for mapper in scbl_db.Base.registry.mappers
-    } - {'DataSet', 'Sample'}
+    } - {'DataSet', 'DataSubclass', 'Sample'}
 
     def test_exported_models(self):
         assert self.exported_model_names == self.all_model_names

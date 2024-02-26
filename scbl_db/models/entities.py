@@ -4,9 +4,9 @@ from pathlib import Path
 from re import fullmatch
 
 from email_validator import validate_email
-from requests import get
 from sqlalchemy import ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from urllib3 import request
 
 from ..bases import Entity
 from ..custom_types import (
@@ -68,9 +68,9 @@ class Institution(Entity, kw_only=True):
 
         base_url = 'https://api.ror.org/organizations'
         url = f'{base_url}/{self.ror_id}'
-        response = get(url)
+        response = request(method='GET', url=url)
 
-        if not response.ok:
+        if response.status != 200:
             raise ValueError(
                 f'ROR ID {self.ror_id} not found in database search of {base_url}'
             )
@@ -172,9 +172,9 @@ class Person(Entity, kw_only=True):
         base_url = 'https://pub.orcid.org'
         url = f'{base_url}/{formatted_orcid}'
         headers = {'Accept': 'application/json'}
-        response = get(url, headers=headers)
+        response = request(method='GET', url=url, headers=headers)
 
-        if not response.ok:
+        if response.status != 200:
             raise ValueError(
                 f'{formatted_orcid} not found in database search of {base_url}'
             )

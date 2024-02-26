@@ -1,4 +1,4 @@
-from dataclasses import MISSING, fields
+from dataclasses import MISSING, Field, fields
 from datetime import date
 from re import fullmatch
 from typing import ClassVar
@@ -12,16 +12,32 @@ __all__ = ['Base', 'Entity', 'Data', 'Process']
 
 class Base(MappedAsDataclass, DeclarativeBase):
     @classmethod
-    def init_fields(cls) -> set[str]:
-        return {f.name for f in fields(cls) if f.init}
+    def fields(cls) -> tuple[Field, ...]:
+        return fields(cls)
 
     @classmethod
-    def required_init_fields(cls) -> set[str]:
-        return {
-            f.name
+    def init_fields(cls) -> tuple[Field, ...]:
+        return tuple(f for f in cls.fields() if f.init)
+
+    @classmethod
+    def required_init_fields(cls) -> tuple[Field, ...]:
+        return tuple(
+            f
             for f in fields(cls)
             if f.init and f.default is MISSING and f.default_factory is MISSING
-        }
+        )
+
+    @classmethod
+    def field_names(cls) -> tuple[str, ...]:
+        return tuple(f.name for f in cls.fields())
+
+    @classmethod
+    def init_field_names(cls) -> tuple[str, ...]:
+        return tuple(f.name for f in cls.init_fields())
+
+    @classmethod
+    def required_init_field_names(cls) -> tuple[str, ...]:
+        return tuple(f.name for f in cls.required_init_fields())
 
     pass
 

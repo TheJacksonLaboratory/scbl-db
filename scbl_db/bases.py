@@ -28,16 +28,16 @@ class Base(MappedAsDataclass, DeclarativeBase):
         )
 
     @classmethod
-    def field_names(cls) -> tuple[str, ...]:
-        return tuple(f.name for f in cls.fields())
+    def field_names(cls) -> set[str]:
+        return {f.name for f in cls.fields()}
 
     @classmethod
-    def init_field_names(cls) -> tuple[str, ...]:
-        return tuple(f.name for f in cls.init_fields())
+    def init_field_names(cls) -> set[str]:
+        return {f.name for f in cls.init_fields()}
 
     @classmethod
-    def required_init_field_names(cls) -> tuple[str, ...]:
-        return tuple(f.name for f in cls.required_init_fields())
+    def required_init_field_names(cls) -> set[str]:
+        return {f.name for f in cls.required_init_fields()}
 
     pass
 

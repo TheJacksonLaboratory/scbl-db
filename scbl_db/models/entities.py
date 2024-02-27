@@ -16,7 +16,6 @@ from ..custom_types import (
     unique_stripped_str,
 )
 from ..utils import get_format_string_vars
-from ..validators import validate_directory
 
 __all__ = ['Institution', 'Lab', 'Person']
 
@@ -236,7 +235,8 @@ class Lab(Entity, kw_only=True):
             return delivery_dir
 
         delivery_path = self._delivery_parent_dir / delivery_dir
-        validate_directory(delivery_path, required_structure={delivery_path: []})
+        if not delivery_path.is_dir():
+            raise NotADirectoryError(f'{key} {delivery_path} is not a directory.')
 
         return str(delivery_path)
 
@@ -258,7 +258,10 @@ class Lab(Entity, kw_only=True):
         )
 
         delivery_path = self._delivery_parent_dir / f'{first_name}_{last_name}'
-        validate_directory(delivery_path, required_structure={delivery_path: []})
+        if not delivery_path.is_dir():
+            raise NotADirectoryError(
+                f'Delivery directory {delivery_path} does not exist.'
+            )
 
         self.delivery_dir = str(delivery_path)
         self.unix_group = delivery_path.group()

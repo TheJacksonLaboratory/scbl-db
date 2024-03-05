@@ -50,7 +50,3 @@ class TestData:
         """
         with raises(ValueError):
             self.DataSubclass(id='AB99000', date_info=self.date_info)
-
-
-class TestSomethingToChange:
-    pass

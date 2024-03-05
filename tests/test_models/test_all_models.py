@@ -7,7 +7,9 @@ from sqlalchemy.orm import RelationshipDirection
 from scbl_db import ORDERED_MODELS, Base
 
 
-# TODO: this test is super ugly, improve it
+# TODO: this test is super ugly, improve it. It also doesn't catch everything.
+# Ultimately, the exclusion of platform is because of its special use in polymorphism,
+# and it's easy to figure out when something is polymorphic on platform, so this can be cleaned
 @mark.parametrize(
     argnames='model', argvalues=[model for model in ORDERED_MODELS.values()]
 )

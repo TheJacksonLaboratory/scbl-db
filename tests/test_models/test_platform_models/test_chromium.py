@@ -5,8 +5,6 @@ from pytest import mark, raises
 from scbl_db.models.platforms.chromium import *
 from scbl_db.models.processes import *
 
-from ..model_instance_fixtures import *
-
 
 class TestcChromiumDataSet:
     """

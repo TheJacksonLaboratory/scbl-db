@@ -24,19 +24,19 @@ class DataSet(Data, kw_only=True):
 
     # Parent foreign keys
     assay_name: Mapped[str] = mapped_column(
-        ForeignKey('assay.name'), init=False, repr=False
+        ForeignKey('assay.name'), repr=False, default=None
     )
-    lab_id: Mapped[int] = mapped_column(ForeignKey('lab.id'), init=False, repr=False)
+    lab_id: Mapped[int] = mapped_column(ForeignKey('lab.id'), default=None, repr=False)
     platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
     submitter_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), init=False, repr=False
+        ForeignKey('person.id'), default=None, repr=False
     )
 
     # Parent models
-    assay: Mapped[Assay] = relationship()
-    lab: Mapped[Lab] = relationship()
+    assay: Mapped[Assay] = relationship(default=None)
+    lab: Mapped[Lab] = relationship(default=None)
     platform: Mapped[Platform] = relationship(init=False, repr=False)
-    submitter: Mapped[Person] = relationship()
+    submitter: Mapped[Person] = relationship(default=None)
 
     # Model metadata
     id_date_col: ClassVar[Literal['date_initialized']] = 'date_initialized'
@@ -55,7 +55,7 @@ class Sample(Data, kw_only=True):
 
     # Parent foreign keys
     data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), init=False, repr=False
+        ForeignKey('data_set.id'), default=None, repr=False
     )
     platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
 

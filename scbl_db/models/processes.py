@@ -18,4 +18,4 @@ class Assay(Process, kw_only=True):
     )
 
     # Parent models
-    platform: Mapped[Platform] = relationship()
+    platform: Mapped[Platform] = relationship(default=None)

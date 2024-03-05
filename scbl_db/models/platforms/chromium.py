@@ -54,11 +54,13 @@ class ChromiumTag(Base, kw_only=True):
 class ChromiumSample(Sample, kw_only=True):
     # Parent foreign keys
     tag_id: Mapped[str | None] = mapped_column(
-        ForeignKey('chromium_tag.id'), init=False, repr=False
+        ForeignKey('chromium_tag.id'), default=None, repr=False
     )
 
     # Parent models
-    data_set: Mapped[ChromiumDataSet] = relationship(back_populates='samples')
+    data_set: Mapped[ChromiumDataSet] = relationship(
+        back_populates='samples', default=None
+    )
     tag: Mapped[ChromiumTag | None] = relationship(default=None, repr=False)
 
     # Model metadata
@@ -102,18 +104,20 @@ class ChromiumLibrary(Data, kw_only=True):
 
     # Parent foreign keys
     data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), init=False, repr=False
+        ForeignKey('data_set.id'), default=None, repr=False
     )
     library_type_name: Mapped[int] = mapped_column(
-        ForeignKey('chromium_library_type.name'), init=False, repr=False
+        ForeignKey('chromium_library_type.name'), default=None, repr=False
     )
     sequencing_run_id: Mapped[str | None] = mapped_column(
-        ForeignKey('sequencing_run.id'), init=False, compare=False
+        ForeignKey('sequencing_run.id'), default=None, compare=False
     )
 
     # Parent models
-    data_set: Mapped[ChromiumDataSet] = relationship(back_populates='libraries')
-    library_type: Mapped[ChromiumLibraryType] = relationship()
+    data_set: Mapped[ChromiumDataSet] = relationship(
+        back_populates='libraries', default=None
+    )
+    library_type: Mapped[ChromiumLibraryType] = relationship(default=None)
     sequencing_run: Mapped[SequencingRun | None] = relationship(
         default=None, repr=False, compare=False
     )

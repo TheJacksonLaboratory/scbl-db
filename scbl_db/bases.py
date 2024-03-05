@@ -45,7 +45,7 @@ class Base(MappedAsDataclass, DeclarativeBase):
 class Entity(Base, kw_only=True):
     __abstract__ = True
 
-    id: Mapped[int_pk] = mapped_column(init=False, repr=False, compare=False)
+    id: Mapped[int_pk] = mapped_column(repr=False, compare=False, default=None)
 
 
 class Data(Base, kw_only=True):

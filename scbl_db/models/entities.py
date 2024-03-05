@@ -142,11 +142,13 @@ class Person(Entity, kw_only=True):
 
     # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'), repr=False, init=False, compare=False
+        ForeignKey('institution.id'), repr=False, compare=False, default=None
     )
 
     # Parent models
-    institution: Mapped[Institution] = relationship(repr=False, compare=False)
+    institution: Mapped[Institution] = relationship(
+        repr=False, compare=False, default=None
+    )
 
     @validates('first_name', 'last_name')
     def format_name(self, key: str, name: str) -> str:
@@ -213,15 +215,15 @@ class Lab(Entity, kw_only=True):
 
     # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'), init=False, repr=False, compare=False
+        ForeignKey('institution.id'), repr=False, compare=False, default=None
     )
     pi_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), init=False, repr=False, compare=False
+        ForeignKey('person.id'), repr=False, compare=False, default=None
     )
 
     # Parent models
-    institution: Mapped[Institution] = relationship()
-    pi: Mapped[Person] = relationship()
+    institution: Mapped[Institution] = relationship(default=None)
+    pi: Mapped[Person] = relationship(default=None)
 
     __table_args__ = (UniqueConstraint('institution_id', 'pi_id', 'name'),)
 

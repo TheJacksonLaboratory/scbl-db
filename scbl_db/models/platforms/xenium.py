@@ -35,11 +35,13 @@ class XeniumDataSet(DataSet, kw_only=True):
 
     # Parent foreign keys
     xenium_run_id: Mapped[int | None] = mapped_column(
-        ForeignKey('xenium_run.id'), init=False, repr=False
+        ForeignKey('xenium_run.id'), default=None, repr=False
     )
 
     # Parent models
-    xenium_run: Mapped[XeniumRun] = relationship(back_populates='data_sets')
+    xenium_run: Mapped[XeniumRun] = relationship(
+        back_populates='data_sets', default=None
+    )
 
     # Child models
     samples: Mapped[list['XeniumSample']] = relationship(
@@ -73,7 +75,9 @@ class XeniumDataSet(DataSet, kw_only=True):
 
 class XeniumSample(Sample):
     # Parent models
-    data_set: Mapped[XeniumDataSet] = relationship(back_populates='samples')
+    data_set: Mapped[XeniumDataSet] = relationship(
+        back_populates='samples', default=None
+    )
 
     # Model metadata
     id_prefix: ClassVar[Literal['XE']] = 'XE'

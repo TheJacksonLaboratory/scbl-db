@@ -6,8 +6,6 @@ import scbl_db.models.entities
 from scbl_db.bases import Entity
 from scbl_db.models.entities import *
 
-from .model_instance_fixtures import *
-
 
 # TODO: add more tests for each possible error
 class TestInstitution:

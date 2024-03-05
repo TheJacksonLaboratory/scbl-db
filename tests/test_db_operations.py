@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from scbl_db import *
 
-from .db_fixtures import tmp_db_session
-from .test_models.model_instance_fixtures import *
+from .test_models.conftest import *
 
 
 class TestDBInsert:

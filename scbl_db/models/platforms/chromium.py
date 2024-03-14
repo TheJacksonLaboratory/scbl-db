@@ -54,7 +54,7 @@ class ChromiumTag(Base, kw_only=True):
 class ChromiumSample(Sample, kw_only=True):
     # Parent foreign keys
     tag_id: Mapped[str | None] = mapped_column(
-        ForeignKey('chromium_tag.id'), default=None, repr=False
+        ForeignKey('chromium_tag.id'), default=None, repr=False, init=False
     )
 
     # Parent models
@@ -104,13 +104,13 @@ class ChromiumLibrary(Data, kw_only=True):
 
     # Parent foreign keys
     data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), default=None, repr=False
+        ForeignKey('data_set.id'), default=None, repr=False, init=False
     )
     library_type_name: Mapped[int] = mapped_column(
-        ForeignKey('chromium_library_type.name'), default=None, repr=False
+        ForeignKey('chromium_library_type.name'), default=None, repr=False, init=False
     )
     sequencing_run_id: Mapped[str | None] = mapped_column(
-        ForeignKey('sequencing_run.id'), default=None, compare=False
+        ForeignKey('sequencing_run.id'), default=None, compare=False, init=False
     )
 
     # Parent models

@@ -142,7 +142,11 @@ class Person(Entity, kw_only=True):
 
     # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'), repr=False, compare=False, default=None
+        ForeignKey('institution.id'),
+        repr=False,
+        compare=False,
+        default=None,
+        init=False,
     )
 
     # Parent models
@@ -215,10 +219,14 @@ class Lab(Entity, kw_only=True):
 
     # Parent foreign keys
     institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'), repr=False, compare=False, default=None
+        ForeignKey('institution.id'),
+        repr=False,
+        compare=False,
+        default=None,
+        init=False,
     )
     pi_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), repr=False, compare=False, default=None
+        ForeignKey('person.id'), repr=False, compare=False, default=None, init=False
     )
 
     # Parent models

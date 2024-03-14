@@ -35,7 +35,7 @@ class XeniumDataSet(DataSet, kw_only=True):
 
     # Parent foreign keys
     xenium_run_id: Mapped[int | None] = mapped_column(
-        ForeignKey('xenium_run.id'), default=None, repr=False
+        ForeignKey('xenium_run.id'), default=None, repr=False, init=False
     )
 
     # Parent models

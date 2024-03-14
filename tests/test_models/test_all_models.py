@@ -45,7 +45,7 @@ def test_model_parent_dataclass_features(model: type[Base]):
                 dataclass_foreign_key_field.default is not MISSING
                 or dataclass_foreign_key_field.default_factory is not MISSING
             )
-            assert dataclass_foreign_key_field.init
+            assert not dataclass_foreign_key_field.init
         elif relationship_name in ('assay', 'library_type'):
             pass
         else:

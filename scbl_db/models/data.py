@@ -24,12 +24,14 @@ class DataSet(Data, kw_only=True):
 
     # Parent foreign keys
     assay_name: Mapped[str] = mapped_column(
-        ForeignKey('assay.name'), repr=False, default=None
+        ForeignKey('assay.name'), repr=False, default=None, init=False
     )
-    lab_id: Mapped[int] = mapped_column(ForeignKey('lab.id'), default=None, repr=False)
+    lab_id: Mapped[int] = mapped_column(
+        ForeignKey('lab.id'), default=None, repr=False, init=False
+    )
     platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
     submitter_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), default=None, repr=False
+        ForeignKey('person.id'), default=None, repr=False, init=False
     )
 
     # Parent models
@@ -55,7 +57,7 @@ class Sample(Data, kw_only=True):
 
     # Parent foreign keys
     data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), default=None, repr=False
+        ForeignKey('data_set.id'), default=None, repr=False, init=False
     )
     platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
 

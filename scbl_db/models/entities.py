@@ -157,8 +157,8 @@ class Person(Entity, kw_only=True):
     @validates('first_name', 'last_name')
     def format_name(self, key: str, name: str) -> str:
         formatted_split = name.strip().title().split()
-        noramlized_inner_whitespace = ' '.join(formatted_split)
-        return noramlized_inner_whitespace
+        normalized_inner_whitespace = ' '.join(formatted_split)
+        return normalized_inner_whitespace
 
     @validates('orcid')
     def validate_orcid(self, key: str, orcid: str | None) -> str | None:

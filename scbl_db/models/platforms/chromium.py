@@ -97,7 +97,9 @@ class ChromiumLibrary(Data, kw_only=True):
     __tablename__ = 'chromium_library'
 
     # Library attributes
-    date_constructed: Mapped[date] = mapped_column(repr=False)
+    date_constructed: Mapped[date | None] = mapped_column(repr=False, default=None)
+    date_data_set_initialized: Mapped[date] = mapped_column(repr=False)
+
     # TODO: add some validation so that libraries with a particular
     # status must have a sequencing run
     status: Mapped[stripped_str] = mapped_column(compare=False)
@@ -123,6 +125,8 @@ class ChromiumLibrary(Data, kw_only=True):
     )
 
     # Model metadata
-    id_date_col: ClassVar[Literal['date_constructed']] = 'date_constructed'
+    id_date_col: ClassVar[Literal['date_data_set_initialized']] = (
+        'date_data_set_initialized'
+    )
     id_prefix: ClassVar[Literal['SC']] = 'SC'
     id_length: ClassVar[Literal[9]] = 9

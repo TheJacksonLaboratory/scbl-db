@@ -12,6 +12,7 @@ class Platform(Process, kw_only=True):
 
 class Assay(Process, kw_only=True):
     __tablename__ = 'assay'
+
     # Parent foreign keys
     platform_name: Mapped[str] = mapped_column(
         ForeignKey('platform.name'), default=None, repr=False, init=False

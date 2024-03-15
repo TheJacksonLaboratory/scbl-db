@@ -51,23 +51,24 @@ class SamplesheetString(TypeDecorator):
         return string
 
 
-class XeniumSlideSerialNumber(TypeDecorator):
-    """ """
+# TODO these should just be encoded as str
+# class XeniumSlideSerialNumber(TypeDecorator):
+#     """ """
 
-    impl = Integer
-    cache_ok = True
+#     impl = Integer
+#     cache_ok = True
 
-    def process_bind_param(self, serial_number, dialect) -> int:
-        return (
-            int(serial_number.strip())
-            if isinstance(serial_number, str)
-            else serial_number
-        )
+#     def process_bind_param(self, serial_number, dialect) -> int:
+#         return (
+#             int(serial_number.strip())
+#             if isinstance(serial_number, str)
+#             else serial_number
+#         )
 
-    def process_result_value(self, serial_number, dialect) -> str:
-        return (
-            f'{serial_number:07}' if isinstance(serial_number, int) else serial_number
-        )
+#     def process_result_value(self, serial_number, dialect) -> str:
+#         return (
+#             f'{serial_number:07}' if isinstance(serial_number, int) else serial_number
+#         )
 
 
 # Commonly used primary key types
@@ -83,6 +84,6 @@ samplesheet_str = Annotated[str, mapped_column(SamplesheetString)]
 unique_int = Annotated[int, mapped_column(unique=True)]
 unique_stripped_str = Annotated[str, mapped_column(StrippedString, unique=True)]
 unique_samplesheet_str = Annotated[str, mapped_column(SamplesheetString, unique=True)]
-xenium_slide_serial_number = Annotated[
-    str, mapped_column(XeniumSlideSerialNumber, unique=True)
-]
+# xenium_slide_serial_number = Annotated[
+#     str, mapped_column(XeniumSlideSerialNumber, unique=True)
+# ]

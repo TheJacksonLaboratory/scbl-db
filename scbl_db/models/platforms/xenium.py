@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from ...bases import Data
-from ...custom_types import samplesheet_str, xenium_slide_serial_number
+from ...custom_types import samplesheet_str, stripped_str_pk
 from ..data import DataSet, Sample
 
 __all__ = ['XeniumRun', 'XeniumDataSet', 'XeniumSample']
@@ -30,7 +30,7 @@ class XeniumRun(Data):
 
 class XeniumDataSet(DataSet, kw_only=True):
     # XeniumDataSet attributes
-    slide_serial_number: Mapped[xenium_slide_serial_number | None]
+    slide_serial_number: Mapped[stripped_str_pk | None]
     slide_name: Mapped[samplesheet_str | None]
 
     # Parent foreign keys

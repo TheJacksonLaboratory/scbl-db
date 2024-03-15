@@ -59,5 +59,5 @@ class TestXeniumSample:
     Tests for the XeniumSample model.
     """
 
-    def test_platform_assignment(self, xenium_sample: XeniumSample):
+    def test_platform_assignment(self, xenium_sample: XeniumRegion):
         assert xenium_sample.platform_name == 'Xenium'

@@ -24,7 +24,7 @@ class DataSet(Data, kw_only=True):
 
     # Parent foreign keys
     assay_name: Mapped[str] = mapped_column(
-        ForeignKey('assay.name'), repr=False, default=None, init=False
+        ForeignKey('assay.name'), repr=False, default=None
     )
     lab_id: Mapped[int] = mapped_column(
         ForeignKey('lab.id'), default=None, repr=False, init=False
@@ -35,10 +35,8 @@ class DataSet(Data, kw_only=True):
     )
 
     # Parent models
-    assay: Mapped[Assay] = relationship(default=None)
-    lab: Mapped[Lab] = relationship(default=None)
-    platform: Mapped[Platform] = relationship(init=False, repr=False)
-    submitter: Mapped[Person] = relationship(default=None)
+    lab: Mapped[Lab] = relationship()
+    submitter: Mapped[Person] = relationship()
 
     # Model metadata
     id_date_col: ClassVar[Literal['date_initialized']] = 'date_initialized'
@@ -46,6 +44,9 @@ class DataSet(Data, kw_only=True):
     __mapper_args__ = {
         'polymorphic_on': 'platform_name',
     }
+
+    def __post_init__(self):
+        self.name = self.lab.name + self.assay_name + self.date_initialized.isoformat()
 
 
 class Sample(Data, kw_only=True):

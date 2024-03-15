@@ -15,8 +15,5 @@ class Assay(Process, kw_only=True):
 
     # Parent foreign keys
     platform_name: Mapped[str] = mapped_column(
-        ForeignKey('platform.name'), default=None, repr=False, init=False
+        ForeignKey('platform.name'), default=None, repr=False
     )
-
-    # Parent models
-    platform: Mapped[Platform] = relationship(default=None)

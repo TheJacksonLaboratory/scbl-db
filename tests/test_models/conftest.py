@@ -230,11 +230,11 @@ def xenium_data_set(
 
 
 @fixture
-def xenium_sample(xenium_data_set: XeniumDataSet) -> XeniumSample:
+def xenium_sample(xenium_data_set: XeniumDataSet) -> XeniumRegion:
     """
     Create a valid XeniumSample object for testing dependent models.
     """
-    return XeniumSample(
+    return XeniumRegion(
         id='XE9900000',
         data_set=xenium_data_set,
         name='xenium_sample',

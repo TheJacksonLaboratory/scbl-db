@@ -52,6 +52,9 @@ class ChromiumTag(Base, kw_only=True):
 
 
 class ChromiumSample(Sample, kw_only=True):
+    # Sample attributes
+    targeted_cell_recovery: Mapped[int | None] = mapped_column(default=None)
+
     # Parent foreign keys
     tag_id: Mapped[str | None] = mapped_column(
         ForeignKey('chromium_tag.id'), default=None, repr=False, init=False

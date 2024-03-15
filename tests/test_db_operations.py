@@ -30,7 +30,7 @@ class TestDBInsert:
         chromium_tag: ChromiumTag,
         xenium_run: XeniumRun,
         xenium_data_set: XeniumDataSet,
-        xenium_sample: XeniumSample,
+        xenium_sample: XeniumRegion,
     ):
         """
         Verify that instances of models can be inserted into the database.

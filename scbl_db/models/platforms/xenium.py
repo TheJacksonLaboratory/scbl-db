@@ -5,12 +5,13 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from ...bases import Data
-from ...custom_types import samplesheet_str, stripped_str_pk
+from ...custom_types import samplesheet_str, stripped_str
 from ..data import DataSet, Sample
 
-__all__ = ['XeniumRun', 'XeniumDataSet', 'XeniumSample']
+__all__ = ['XeniumRun', 'XeniumDataSet', 'XeniumRegion']
 
 
+# TODO: This set of models is incomplete
 class XeniumRun(Data):
     __tablename__ = 'xenium_run'
 
@@ -20,7 +21,7 @@ class XeniumRun(Data):
     # Model metadata
     id_date_col: ClassVar[Literal['date_begun']] = 'date_begun'
     id_prefix: ClassVar[Literal['XR']] = 'XR'
-    id_length: ClassVar[Literal[8]] = 8
+    id_length: ClassVar[Literal[7]] = 7
 
     # Child models
     data_sets: Mapped[list['XeniumDataSet']] = relationship(
@@ -30,7 +31,7 @@ class XeniumRun(Data):
 
 class XeniumDataSet(DataSet, kw_only=True):
     # XeniumDataSet attributes
-    slide_serial_number: Mapped[stripped_str_pk | None]
+    slide_serial_number: Mapped[stripped_str | None]
     slide_name: Mapped[samplesheet_str | None]
 
     # Parent foreign keys
@@ -44,13 +45,13 @@ class XeniumDataSet(DataSet, kw_only=True):
     )
 
     # Child models
-    samples: Mapped[list['XeniumSample']] = relationship(
+    samples: Mapped[list['XeniumRegion']] = relationship(
         back_populates='data_set', default_factory=list, repr=False, compare=False
     )
 
     # Model metadata
     id_prefix: ClassVar[Literal['XD']] = 'XD'
-    id_length: ClassVar[Literal[10]] = 10
+    id_length: ClassVar[Literal[8]] = 8
 
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}
 
@@ -73,7 +74,7 @@ class XeniumDataSet(DataSet, kw_only=True):
         return serial_number
 
 
-class XeniumSample(Sample):
+class XeniumRegion(Sample):
     # Parent models
     data_set: Mapped[XeniumDataSet] = relationship(
         back_populates='samples', default=None
@@ -81,6 +82,6 @@ class XeniumSample(Sample):
 
     # Model metadata
     id_prefix: ClassVar[Literal['XE']] = 'XE'
-    id_length: ClassVar[Literal[9]] = 9
+    id_length: ClassVar[Literal[8]] = 8
 
     __mapper_args__ = {'polymorphic_identity': 'Xenium'}

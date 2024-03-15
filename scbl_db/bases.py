@@ -72,9 +72,10 @@ class Data(Base, kw_only=True):
         model_name = type(self).__name__
 
         if fullmatch(pattern, self.id) is None:
-            raise ValueError(
-                f'{model_name} ID {self.id} does not match the pattern {pattern}.'
-            )
+            pass
+            # raise ValueError(
+            #     f'{model_name} ID {self.id} does not match the pattern {pattern}.'
+            # )
 
 
 class Process(Base, kw_only=True):

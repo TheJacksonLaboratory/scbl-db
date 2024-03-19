@@ -25,7 +25,7 @@ __all__ = [
     'chromium_tag',
     'xenium_run',
     'xenium_data_set',
-    'xenium_sample',
+    'xenium_region',
 ]
 
 
@@ -127,7 +127,6 @@ def chromium_data_set(
     """
     return ChromiumDataSet(
         id='SD9900000',
-        name='chromium_data_set',
         assay=chromium_assay,
         ilab_request_id='ilab_request',
         date_initialized=date(1999, 1, 1),
@@ -205,7 +204,7 @@ def xenium_run() -> XeniumRun:
     """
     Create a valid XeniumRun object for testing dependent models.
     """
-    return XeniumRun(id='XR990000', date_begun=date(1999, 1, 1))
+    return XeniumRun(id='XR99000', date_begun=date(1999, 1, 1))
 
 
 @fixture
@@ -216,8 +215,7 @@ def xenium_data_set(
     Create a valid ChromiumDataSet object for testing dependent models.
     """
     return XeniumDataSet(
-        id='XD99000000',
-        name='xenium_data_set',
+        id='XD990000',
         assay=xenium_assay,
         ilab_request_id='ilab_request',
         date_initialized=date(1999, 1, 1),
@@ -230,12 +228,12 @@ def xenium_data_set(
 
 
 @fixture
-def xenium_sample(xenium_data_set: XeniumDataSet) -> XeniumRegion:
+def xenium_region(xenium_data_set: XeniumDataSet) -> XeniumRegion:
     """
     Create a valid XeniumSample object for testing dependent models.
     """
     return XeniumRegion(
-        id='XE9900000',
+        id='XE990000',
         data_set=xenium_data_set,
         name='xenium_sample',
         date_received=date(1999, 1, 1),

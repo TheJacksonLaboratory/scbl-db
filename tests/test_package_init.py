@@ -18,11 +18,5 @@ class TestInit:
     def test_exported_models(self):
         assert self.exported_model_names == self.all_model_names
 
-    # def test_ordered_models_instance_has_all_keys(self):
-    #     assert (
-    #         scbl_db.ORDERED_MODELS.keys()
-    #         == get_annotations(scbl_db.OrderedModelDict).keys()
-    #     )
-
     def test_all_models_are_ordered(self):
         assert scbl_db.ORDERED_MODELS.keys() == self.all_model_names

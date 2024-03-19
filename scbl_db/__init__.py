@@ -18,7 +18,7 @@ ORDERED_MODELS: dict[str, type[Base]] = {
     'ChromiumLibrary': ChromiumLibrary,
     'XeniumRun': XeniumRun,
     'XeniumDataSet': XeniumDataSet,
-    'XeniumSample': XeniumRegion,
+    'XeniumRegion': XeniumRegion,
 }
 __all__ = [
     'Base',

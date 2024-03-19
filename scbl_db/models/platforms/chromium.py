@@ -22,10 +22,10 @@ __all__ = [
 class ChromiumDataSet(DataSet, kw_only=True):
     # Child models
     samples: Mapped[list['ChromiumSample']] = relationship(
-        back_populates='data_set', default_factory=list, repr=False, compare=False
+        back_populates='data_set', default_factory=list, repr=False
     )
     libraries: Mapped[list['ChromiumLibrary']] = relationship(
-        back_populates='data_set', default_factory=list, repr=False, compare=False
+        back_populates='data_set', default_factory=list, repr=False
     )
 
     # Model metadata
@@ -79,6 +79,10 @@ class SequencingRun(Data, kw_only=True):
     # SequencingRun attributes
     date_begun: Mapped[date] = mapped_column(repr=False)
 
+    libraries: Mapped[list['ChromiumLibrary']] = relationship(
+        back_populates='sequencing_run', default_factory=list
+    )
+
     def __post_init__(self):
         self.id = self.id.strip().lower()
 
@@ -100,19 +104,18 @@ class ChromiumLibrary(Data, kw_only=True):
     __tablename__ = 'chromium_library'
 
     # Library attributes
-    date_constructed: Mapped[date | None] = mapped_column(repr=False, default=None)
-    date_data_set_initialized: Mapped[date] = mapped_column(repr=False)
+    date_constructed: Mapped[date | None] = mapped_column(default=None, repr=False)
 
     # TODO: add some validation so that libraries with a particular
     # status must have a sequencing run
-    status: Mapped[stripped_str] = mapped_column(compare=False)
+    status: Mapped[stripped_str]
 
     # Parent foreign keys
-    data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), default=None, repr=False, init=False
+    data_set_id: Mapped[str] = mapped_column(
+        ForeignKey('data_set.id'), default=None, init=False, repr=False
     )
     library_type_name: Mapped[int] = mapped_column(
-        ForeignKey('chromium_library_type.name'), default=None, repr=False, init=False
+        ForeignKey('chromium_library_type.name'), default=None, init=False
     )
     sequencing_run_id: Mapped[str | None] = mapped_column(
         ForeignKey('sequencing_run.id'), default=None, compare=False, init=False
@@ -124,12 +127,10 @@ class ChromiumLibrary(Data, kw_only=True):
     )
     library_type: Mapped[ChromiumLibraryType] = relationship(default=None)
     sequencing_run: Mapped[SequencingRun | None] = relationship(
-        default=None, repr=False, compare=False
+        default=None, compare=False, repr=False
     )
 
     # Model metadata
-    id_date_col: ClassVar[Literal['date_data_set_initialized']] = (
-        'date_data_set_initialized'
-    )
+    id_date_col: ClassVar[Literal['date_constructed']] = 'date_constructed'
     id_prefix: ClassVar[Literal['SC']] = 'SC'
     id_length: ClassVar[Literal[9]] = 9

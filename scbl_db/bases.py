@@ -12,15 +12,15 @@ __all__ = ['Base', 'Entity', 'Data', 'Process']
 
 class Base(MappedAsDataclass, DeclarativeBase):
     @classmethod
-    def fields(cls) -> tuple[Field, ...]:
+    def dc_fields(cls) -> tuple[Field, ...]:
         return fields(cls)
 
     @classmethod
-    def init_fields(cls) -> tuple[Field, ...]:
-        return tuple(f for f in cls.fields() if f.init)
+    def dc_init_fields(cls) -> tuple[Field, ...]:
+        return tuple(f for f in cls.dc_fields() if f.init)
 
     @classmethod
-    def required_init_fields(cls) -> tuple[Field, ...]:
+    def required_dc_init_fields(cls) -> tuple[Field, ...]:
         return tuple(
             f
             for f in fields(cls)
@@ -28,24 +28,22 @@ class Base(MappedAsDataclass, DeclarativeBase):
         )
 
     @classmethod
-    def field_names(cls) -> set[str]:
-        return {f.name for f in cls.fields()}
+    def dc_field_names(cls) -> set[str]:
+        return {f.name for f in cls.dc_fields()}
 
     @classmethod
-    def init_field_names(cls) -> set[str]:
-        return {f.name for f in cls.init_fields()}
+    def dc_init_field_names(cls) -> set[str]:
+        return {f.name for f in cls.dc_init_fields()}
 
     @classmethod
-    def required_init_field_names(cls) -> set[str]:
-        return {f.name for f in cls.required_init_fields()}
+    def required_dc_init_field_names(cls) -> set[str]:
+        return {f.name for f in cls.required_dc_init_fields()}
 
     pass
 
 
 class Entity(Base, kw_only=True):
     __abstract__ = True
-
-    id: Mapped[int_pk] = mapped_column(repr=False, compare=False, default=None)
 
 
 class Data(Base, kw_only=True):
@@ -72,10 +70,9 @@ class Data(Base, kw_only=True):
         model_name = type(self).__name__
 
         if fullmatch(pattern, self.id) is None:
-            pass
-            # raise ValueError(
-            #     f'{model_name} ID {self.id} does not match the pattern {pattern}.'
-            # )
+            raise ValueError(
+                f'{model_name} ID {self.id} does not match the pattern {pattern}.'
+            )
 
 
 class Process(Base, kw_only=True):

@@ -25,7 +25,6 @@ class TestXeniumDataSet:
             XeniumDataSet(
                 id=xenium_data_set.id,
                 slide_serial_number='string',
-                name=xenium_data_set.name,
                 slide_name=xenium_data_set.slide_name,
                 xenium_run=xenium_data_set.xenium_run,
                 date_initialized=xenium_data_set.date_initialized,
@@ -43,7 +42,6 @@ class TestXeniumDataSet:
             XeniumDataSet(
                 id=xenium_data_set.id,
                 slide_serial_number=slide_serial_number,
-                name=xenium_data_set.name,
                 slide_name=xenium_data_set.slide_name,
                 xenium_run=xenium_data_set.xenium_run,
                 date_initialized=xenium_data_set.date_initialized,
@@ -59,5 +57,5 @@ class TestXeniumSample:
     Tests for the XeniumSample model.
     """
 
-    def test_platform_assignment(self, xenium_sample: XeniumRegion):
-        assert xenium_sample.platform_name == 'Xenium'
+    def test_platform_assignment(self, xenium_region: XeniumRegion):
+        assert xenium_region.platform_name == 'Xenium'

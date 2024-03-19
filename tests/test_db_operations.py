@@ -30,7 +30,7 @@ class TestDBInsert:
         chromium_tag: ChromiumTag,
         xenium_run: XeniumRun,
         xenium_data_set: XeniumDataSet,
-        xenium_sample: XeniumRegion,
+        xenium_region: XeniumRegion,
     ):
         """
         Verify that instances of models can be inserted into the database.
@@ -51,7 +51,7 @@ class TestDBInsert:
             session.add(chromium_library)
             session.add(xenium_run)
             session.add(xenium_data_set)
-            session.add(xenium_sample)
+            session.add(xenium_region)
 
         with tmp_db_session.begin() as session:
             for model in ORDERED_MODELS.values():

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import ClassVar, Literal
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..bases import Data
@@ -16,25 +16,26 @@ class DataSet(Data, kw_only=True):
     __tablename__ = 'data_set'
 
     # DataSet attributes
-    name: Mapped[samplesheet_str] = mapped_column(index=True)
-    ilab_request_id: Mapped[stripped_str] = mapped_column(
-        index=True
-    )  # TODO: ilab request ID validation
+    # TODO: ilab request ID validation
+    ilab_request_id: Mapped[stripped_str] = mapped_column(index=True, repr=False)
     date_initialized: Mapped[date] = mapped_column(repr=False)
 
     # Parent foreign keys
     assay_name: Mapped[str] = mapped_column(
-        ForeignKey('assay.name'), repr=False, default=None
+        ForeignKey('assay.name'), init=False, repr=False
     )
-    lab_id: Mapped[int] = mapped_column(
-        ForeignKey('lab.id'), default=None, repr=False, init=False
+    lab_name: Mapped[str] = mapped_column(init=False, repr=False)
+    lab_pi_email: Mapped[str] = mapped_column(init=False, repr=False)
+    lab_institution_name: Mapped[str] = mapped_column(init=False, repr=False)
+    platform_name: Mapped[str] = mapped_column(
+        ForeignKey('platform.name'), init=False, repr=False
     )
-    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
-    submitter_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), default=None, repr=False, init=False
+    submitter_email: Mapped[int] = mapped_column(
+        ForeignKey('person.email'), default=None, init=False, repr=False
     )
 
     # Parent models
+    assay: Mapped[Assay] = relationship()
     lab: Mapped[Lab] = relationship()
     submitter: Mapped[Person] = relationship()
 
@@ -45,8 +46,12 @@ class DataSet(Data, kw_only=True):
         'polymorphic_on': 'platform_name',
     }
 
-    def __post_init__(self):
-        self.name = self.lab.name + self.assay_name + self.date_initialized.isoformat()
+    __table_args__ = (
+        ForeignKeyConstraint(
+            columns=['lab_name', 'lab_pi_email', 'lab_institution_name'],
+            refcolumns=['lab.name', 'lab.pi_email', 'lab.institution_name'],
+        ),
+    )
 
 
 class Sample(Data, kw_only=True):
@@ -57,10 +62,12 @@ class Sample(Data, kw_only=True):
     date_received: Mapped[date] = mapped_column(repr=False)
 
     # Parent foreign keys
-    data_set_id: Mapped[int] = mapped_column(
-        ForeignKey('data_set.id'), default=None, repr=False, init=False
+    data_set_id: Mapped[str] = mapped_column(
+        ForeignKey('data_set.id'), default=None, init=False, repr=False
     )
-    platform_name: Mapped[str] = mapped_column(ForeignKey('platform.name'), init=False)
+    platform_name: Mapped[str] = mapped_column(
+        ForeignKey('platform.name'), init=False, repr=False
+    )
 
     # Model metadata
     id_date_col: ClassVar[Literal['date_received']] = 'date_received'

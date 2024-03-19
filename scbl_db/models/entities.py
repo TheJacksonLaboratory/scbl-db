@@ -13,6 +13,7 @@ from ..custom_types import (
     SamplesheetString,
     StrippedString,
     stripped_str,
+    stripped_str_pk,
     unique_stripped_str,
 )
 from ..utils import get_format_string_vars
@@ -24,14 +25,10 @@ class Institution(Entity, kw_only=True):
     __tablename__ = 'institution'
 
     # Institution attributes
-    email_format: Mapped[stripped_str] = mapped_column(repr=False, compare=False)
-    ror_id: Mapped[unique_stripped_str | None] = mapped_column(
-        default=None, repr=False, compare=False
-    )
-    name: Mapped[unique_stripped_str] = mapped_column(default=None, index=True)
-    short_name: Mapped[stripped_str] = mapped_column(
-        default=None, index=True, compare=False
-    )
+    name: Mapped[stripped_str_pk] = mapped_column(default=None)
+    email_format: Mapped[stripped_str] = mapped_column(repr=False)
+    ror_id: Mapped[unique_stripped_str | None] = mapped_column(default=None, repr=False)
+    short_name: Mapped[stripped_str] = mapped_column(default=None, index=True)
     country: Mapped[str] = mapped_column(StrippedString(length=2), default='US')
     state: Mapped[str | None] = mapped_column(StrippedString(length=2), default=None)
     city: Mapped[stripped_str] = mapped_column(default=None)
@@ -132,27 +129,19 @@ class Person(Entity, kw_only=True):
     # Person attributes
     first_name: Mapped[stripped_str]
     last_name: Mapped[stripped_str]
-    orcid: Mapped[unique_stripped_str | None] = mapped_column(
-        default=None, repr=False, compare=False
-    )
+    orcid: Mapped[unique_stripped_str | None] = mapped_column(default=None, repr=False)
     email_auto_generated: Mapped[bool] = mapped_column(
-        init=False, default=False, repr=False, compare=False
+        init=False, default=False, repr=False
     )
-    email: Mapped[unique_stripped_str] = mapped_column(default=None, index=True)
+    email: Mapped[stripped_str_pk] = mapped_column(default=None)
 
     # Parent foreign keys
-    institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'),
-        repr=False,
-        compare=False,
-        default=None,
-        init=False,
+    institution_name: Mapped[str] = mapped_column(
+        ForeignKey('institution.name'), init=False
     )
 
     # Parent models
-    institution: Mapped[Institution] = relationship(
-        repr=False, compare=False, default=None
-    )
+    institution: Mapped[Institution] = relationship(repr=False)
 
     @validates('first_name', 'last_name')
     def format_name(self, key: str, name: str) -> str:
@@ -211,29 +200,31 @@ class Lab(Entity, kw_only=True):
     __tablename__ = 'lab'
 
     # Lab attributes
-    name: Mapped[stripped_str] = mapped_column(default=None, index=True)
+    name: Mapped[stripped_str_pk] = mapped_column(default=None)
     delivery_dir: Mapped[unique_stripped_str] = mapped_column(default=None, repr=False)
     unix_group: Mapped[stripped_str] = mapped_column(
-        init=False, default=None, repr=False, compare=False
+        init=False, default=None, compare=False, repr=False
     )
 
     # Parent foreign keys
-    institution_id: Mapped[int] = mapped_column(
-        ForeignKey('institution.id'),
+    institution_name: Mapped[int] = mapped_column(
+        ForeignKey('institution.name'),
         repr=False,
         compare=False,
-        default=None,
         init=False,
+        primary_key=True,
     )
-    pi_id: Mapped[int] = mapped_column(
-        ForeignKey('person.id'), repr=False, compare=False, default=None, init=False
+    pi_email: Mapped[str] = mapped_column(
+        ForeignKey('person.email'),
+        compare=False,
+        init=False,
+        primary_key=True,
+        repr=False,
     )
 
     # Parent models
-    institution: Mapped[Institution] = relationship(default=None)
-    pi: Mapped[Person] = relationship(default=None)
-
-    __table_args__ = (UniqueConstraint('institution_id', 'pi_id', 'name'),)
+    institution: Mapped[Institution] = relationship()
+    pi: Mapped[Person] = relationship()
 
     @cached_property
     def _delivery_parent_dir(self) -> Path:
@@ -258,13 +249,11 @@ class Lab(Entity, kw_only=True):
             self.unix_group = Path(self.delivery_dir).group()
             return
 
-        pi = self.pi
-
         first_name = SamplesheetString().process_bind_param(
-            pi.first_name.lower(), dialect=None
+            self.pi.first_name.lower(), dialect=None
         )
         last_name = SamplesheetString().process_bind_param(
-            pi.last_name.lower(), dialect=None
+            self.pi.last_name.lower(), dialect=None
         )
 
         delivery_path = self._delivery_parent_dir / f'{first_name}_{last_name}'

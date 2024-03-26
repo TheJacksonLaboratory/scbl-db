@@ -61,11 +61,13 @@ class Data(Base, kw_only=True):
         self.id = self.id.strip().upper()
 
         date_col: date = getattr(self, self.id_date_col)
-        year_last_two_digits = date_col.strftime('%y')
+        year_last_two_digits = int(date_col.strftime('%y'))
 
-        prefix = self.id_prefix + year_last_two_digits
-        suffix_length = self.id_length - len(prefix)
-        pattern = rf'{prefix}\d{{{suffix_length}}}'
+        year_pattern = '|'.join(str(year_last_two_digits + i) for i in range(-1, 2))
+
+        prefix = self.id_prefix + f'({year_pattern})'
+        suffix_length = self.id_length - 2
+        pattern = rf'{prefix}\d{{{suffix_length}}}\w?'
 
         model_name = type(self).__name__
 

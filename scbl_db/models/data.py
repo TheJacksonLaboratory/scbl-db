@@ -2,12 +2,12 @@ from datetime import date
 from typing import ClassVar, Literal
 
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from ..bases import Data
+from ..bases import Base, Data
 from ..custom_types import samplesheet_str, stripped_str
 from .entities import Lab, Person
-from .processes import Assay, Platform
+from .processes import Assay
 
 __all__ = ['DataSet', 'Sample']
 
@@ -30,8 +30,8 @@ class DataSet(Data, kw_only=True):
     platform_name: Mapped[str] = mapped_column(
         ForeignKey('platform.name'), init=False, repr=False
     )
-    submitter_email: Mapped[int] = mapped_column(
-        ForeignKey('person.email'), default=None, init=False, repr=False
+    submitter_email: Mapped[str] = mapped_column(
+        ForeignKey('person.email'), init=False, repr=False
     )
 
     # Parent models

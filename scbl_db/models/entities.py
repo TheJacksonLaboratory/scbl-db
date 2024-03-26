@@ -28,10 +28,16 @@ class Institution(Entity, kw_only=True):
     name: Mapped[stripped_str_pk] = mapped_column(default=None)
     email_format: Mapped[stripped_str] = mapped_column(repr=False)
     ror_id: Mapped[unique_stripped_str | None] = mapped_column(default=None, repr=False)
-    short_name: Mapped[stripped_str] = mapped_column(default=None, index=True)
-    country: Mapped[str] = mapped_column(StrippedString(length=2), default='US')
-    state: Mapped[str | None] = mapped_column(StrippedString(length=2), default=None)
-    city: Mapped[stripped_str] = mapped_column(default=None)
+    short_name: Mapped[stripped_str] = mapped_column(
+        default=None, index=True, repr=False
+    )
+    country: Mapped[str] = mapped_column(
+        StrippedString(length=2), default='US', repr=False
+    )
+    state: Mapped[str | None] = mapped_column(
+        StrippedString(length=2), default=None, repr=False
+    )
+    city: Mapped[stripped_str] = mapped_column(default=None, repr=False)
 
     @validates('email_format')
     def validate_email_format(self, key: str, email_format: str) -> str:
@@ -137,7 +143,7 @@ class Person(Entity, kw_only=True):
 
     # Parent foreign keys
     institution_name: Mapped[str] = mapped_column(
-        ForeignKey('institution.name'), init=False
+        ForeignKey('institution.name'), init=False, repr=False
     )
 
     # Parent models
@@ -223,8 +229,8 @@ class Lab(Entity, kw_only=True):
     )
 
     # Parent models
-    institution: Mapped[Institution] = relationship()
-    pi: Mapped[Person] = relationship()
+    institution: Mapped[Institution] = relationship(repr=False)
+    pi: Mapped[Person] = relationship(repr=False)
 
     @cached_property
     def _delivery_parent_dir(self) -> Path:

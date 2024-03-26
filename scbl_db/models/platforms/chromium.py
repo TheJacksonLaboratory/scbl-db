@@ -62,7 +62,7 @@ class ChromiumSample(Sample, kw_only=True):
 
     # Parent models
     data_set: Mapped[ChromiumDataSet] = relationship(
-        back_populates='samples', default=None
+        back_populates='samples', default=None, repr=False
     )
     tag: Mapped[ChromiumTag | None] = relationship(default=None, repr=False)
 
@@ -76,18 +76,14 @@ class ChromiumSample(Sample, kw_only=True):
 class SequencingRun(Data, kw_only=True):
     __tablename__ = 'sequencing_run'
 
-    # SequencingRun attributes
-    date_begun: Mapped[date] = mapped_column(repr=False)
-
     libraries: Mapped[list['ChromiumLibrary']] = relationship(
-        back_populates='sequencing_run', default_factory=list
+        back_populates='sequencing_run', default_factory=list, repr=False
     )
 
     def __post_init__(self):
         self.id = self.id.strip().lower()
 
-        year_last_two_digits = self.date_begun.strftime('%y')
-        pattern = rf'{year_last_two_digits}-scbct-\d{{2,3}}'
+        pattern = rf'\d{{2}}-scbct-\d{{2,3}}'
 
         model_name = type(self).__name__
         if fullmatch(pattern, self.id) is None:
@@ -115,17 +111,21 @@ class ChromiumLibrary(Data, kw_only=True):
         ForeignKey('data_set.id'), default=None, init=False, repr=False
     )
     library_type_name: Mapped[int] = mapped_column(
-        ForeignKey('chromium_library_type.name'), default=None, init=False
+        ForeignKey('chromium_library_type.name'), default=None, init=False, repr=False
     )
     sequencing_run_id: Mapped[str | None] = mapped_column(
-        ForeignKey('sequencing_run.id'), default=None, compare=False, init=False
+        ForeignKey('sequencing_run.id'),
+        default=None,
+        compare=False,
+        init=False,
+        repr=False,
     )
 
     # Parent models
     data_set: Mapped[ChromiumDataSet] = relationship(
-        back_populates='libraries', default=None
+        back_populates='libraries', default=None, repr=False
     )
-    library_type: Mapped[ChromiumLibraryType] = relationship(default=None)
+    library_type: Mapped[ChromiumLibraryType] = relationship(default=None, repr=False)
     sequencing_run: Mapped[SequencingRun | None] = relationship(
         default=None, compare=False, repr=False
     )

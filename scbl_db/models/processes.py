@@ -10,7 +10,7 @@ class Platform(Process, kw_only=True):
     __tablename__ = 'platform'
 
     assays: Mapped[list['Assay']] = relationship(
-        back_populates='platform', default_factory=list
+        back_populates='platform', default_factory=list, repr=False
     )
 
 
@@ -22,4 +22,4 @@ class Assay(Process, kw_only=True):
         ForeignKey('platform.name'), default=None, init=False, repr=False
     )
 
-    platform: Mapped[Platform] = relationship(back_populates='assays')
+    platform: Mapped[Platform] = relationship(back_populates='assays', repr=False)

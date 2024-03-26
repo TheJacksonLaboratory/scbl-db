@@ -35,9 +35,9 @@ class DataSet(Data, kw_only=True):
     )
 
     # Parent models
-    assay: Mapped[Assay] = relationship()
-    lab: Mapped[Lab] = relationship()
-    submitter: Mapped[Person] = relationship()
+    assay: Mapped[Assay] = relationship(repr=False)
+    lab: Mapped[Lab] = relationship(repr=False)
+    submitter: Mapped[Person] = relationship(repr=False)
 
     # Model metadata
     id_date_col: ClassVar[Literal['date_initialized']] = 'date_initialized'

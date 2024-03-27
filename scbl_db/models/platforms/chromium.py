@@ -104,13 +104,13 @@ class ChromiumLibrary(Data, kw_only=True):
 
     # TODO: add some validation so that libraries with a particular
     # status must have a sequencing run
-    status: Mapped[stripped_str]
+    status: Mapped[stripped_str | None] = mapped_column(default=None, repr=False)
 
     # Parent foreign keys
     data_set_id: Mapped[str] = mapped_column(
         ForeignKey('data_set.id'), default=None, init=False, repr=False
     )
-    library_type_name: Mapped[int] = mapped_column(
+    library_type_name: Mapped[str] = mapped_column(
         ForeignKey('chromium_library_type.name'), default=None, init=False, repr=False
     )
     sequencing_run_id: Mapped[str | None] = mapped_column(
@@ -125,7 +125,7 @@ class ChromiumLibrary(Data, kw_only=True):
     data_set: Mapped[ChromiumDataSet] = relationship(
         back_populates='libraries', default=None, repr=False
     )
-    library_type: Mapped[ChromiumLibraryType] = relationship(default=None, repr=False)
+    library_type: Mapped[ChromiumLibraryType] = relationship(repr=False)
     sequencing_run: Mapped[SequencingRun | None] = relationship(
         default=None, compare=False, repr=False
     )

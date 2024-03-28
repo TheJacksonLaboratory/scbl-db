@@ -17,7 +17,9 @@ class DataSet(Data, kw_only=True):
 
     # DataSet attributes
     # TODO: ilab request ID validation
-    ilab_request_id: Mapped[stripped_str] = mapped_column(index=True, repr=False)
+    ilab_request_id: Mapped[stripped_str | None] = mapped_column(
+        default=None, index=True, repr=False
+    )
     date_initialized: Mapped[date] = mapped_column(repr=False)
 
     # Parent foreign keys
